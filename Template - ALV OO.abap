@@ -4,36 +4,34 @@ REPORT zag_simple_alv.
 **********************************************************************
 ***************************  README   ********************************
 
-"Attività Obbligatorie
+"Mandatory Activities
 *--------------------------------------------------------------------*
-*) OGNI CALL SCREEN VA CHIAMATA NEL SEGUENTE MODO, ALTRIMENTI IL TEMPLATE NON FUNZIONA
-"     PERFORM update_stacktrace USING sy-dynnr      "partenza
-"                                     c_dynnr_0100 "destinazione.
+*) EACH CALLL SCREEN MUST BE CALLED IN THE FOLLOWING WAY, OTHERWISE THE TEMPLATE WILL NOT WORK!
+"     PERFORM update_stacktrace USING sy-dynnr     "Start dynpro
+"                                     c_dynnr_0100 "End dynpro.
 "     CALL SCREEN 100.
 
 *) "TODO-DDIC
-"   Adattare con il proprio DDIC i punti contrassegnati con il tag
+"   Adapt the marked points with own DDIC 
 
 *) "TODO-PF_TITLE
-"  Creare le relative PF-STATUS e TITLEBAR per le dynpro create nei punti contrassegnati con il tag
-"   - Se non vi sono particolari esigenze di comandi (classico back, exit )
-"   - creare una PF-STATUS chiamata ZPF_GENERIC già settata di default sulle dynpro preimpostate
+"  Create PF-STATUS called ZPF_GENERIC already set as default for dynpro into the template
+"  Create PF-STATUS and TITLEBAR for your dynpro into the marked points if you want specific commands
 
-*) Adattare il module PAI user command di ogni dynpro creata
-"   utilizzare il module USER_COMMAND_GENERIC con variabile OK_CODE in caso di
-"   dynpro con pf status generica ZPF_GENERIC
+*) Adapt PAI user command module of each created dynpro
+"   If you are using ZPF_GENERIC, use module USER_COMMAND_GENERIC with OK_CODE variable to handle command
 *--------------------------------------------------------------------*
 
-"Attività Facoltative
+"Optional Activities
 *--------------------------------------------------------------------*
 *) "TODO-FIELDCAT
-"   Adattare la fieldcat in caso di esigenza nel punto contrassegnato con il tag
+"   Adapt fieldcat if you need into marked points
 
 *) "TODO-HANDLER
-"   Attivare gli handler di interesse nel punto contrassegnato con il tag
+"   Adapt your handler into the marked points
 
 *) "TODO-EVENT_METHOD
-"   Adattare i metodi con gli eventi in base agli handler/dynpro utilizzati
+"   Adapt the handlers method implementation into the marked points
 *--------------------------------------------------------------------*
 
 **********************************************************************
@@ -48,8 +46,8 @@ TYPES: ty_ref_alv           TYPE REF TO cl_gui_alv_grid,
        ty_ref_container     TYPE REF TO cl_gui_custom_container,
        ty_ref_doc_container TYPE REF TO cl_gui_docking_container.
 
-"Type tabella di servizio
-"per memorizzare stack delle dynpro visualizzate
+"Technical Type table
+"used to stack the dynpro called
 TYPES: BEGIN OF ty_stacktrace_dynnr,
          dynnr          TYPE sy-dynnr,
          dynnr_parent   TYPE sy-dynnr,
@@ -78,10 +76,10 @@ CONSTANTS: c_x                      VALUE 'X',
 
 "ALV SCREEN 100
 *--------------------------------------------------------------------*
-"Struttura Tabella ALV screen 100 + Type Table
+"Structure ALV screen 100 + Type Table
 *--------------------------------------------------------------------*
 TYPES: BEGIN OF ty_alv_0100.
-        INCLUDE STRUCTURE t001. "TODO-DDIC adattare con la propria struttura
+        INCLUDE STRUCTURE t001. "TODO-DDIC
 TYPES: icon TYPE icon_d,
        msg  TYPE bapi_msg.
 TYPES: END OF ty_alv_0100.
@@ -95,17 +93,17 @@ DATA: ok_0100               TYPE sy-ucomm,
       go_doc_container_0100 TYPE ty_ref_doc_container.
 
 CONSTANTS: c_container_0100 TYPE scrfname      VALUE 'CONTAINER_0100',
-           c_alv_st_0100    TYPE dd02l-tabname VALUE 'T001', "TODO-DDIC adattare con la propria struttura
+           c_alv_st_0100    TYPE dd02l-tabname VALUE 'T001', "TODO-DDIC
            c_dynnr_0100     TYPE sy-dynnr      VALUE '0100'.
 *--------------------------------------------------------------------*
 
 
 "ALV SCREEN 200
 *--------------------------------------------------------------------*
-"Struttura Tabella ALV screen 200 + Type Table
+"Structure ALV screen 200 + Type Table
 *--------------------------------------------------------------------*
 TYPES: BEGIN OF ty_alv_0200.
-        INCLUDE STRUCTURE lfa1. "TODO-DDIC adattare con la propria struttura
+        INCLUDE STRUCTURE lfa1. "TODO-DDIC
 TYPES: icon TYPE icon_d,
        msg  TYPE bapi_msg.
 TYPES: END OF ty_alv_0200.
@@ -119,17 +117,17 @@ DATA: ok_0200               TYPE sy-ucomm,
       go_doc_container_0200 TYPE ty_ref_doc_container.
 
 CONSTANTS: c_container_0200 TYPE scrfname      VALUE 'CONTAINER_0200',
-           c_alv_st_0200    TYPE dd02l-tabname VALUE 'LFA1', "TODO-DDIC adattare con la propria struttura
+           c_alv_st_0200    TYPE dd02l-tabname VALUE 'LFA1', "TODO-DDIC
            c_dynnr_0200     TYPE sy-dynnr      VALUE '0200'.
 *--------------------------------------------------------------------*
 
 
 "ALV SCREEN 300
 *--------------------------------------------------------------------*
-"Struttura Tabella ALV screen 300 + Type Table
+"Structure ALV screen 300 + Type Table
 *--------------------------------------------------------------------*
 TYPES: BEGIN OF ty_alv_0300.
-        INCLUDE STRUCTURE kna1. "TODO-DDIC adattare con la propria struttura
+        INCLUDE STRUCTURE kna1. "TODO-DDIC
 TYPES: icon TYPE icon_d,
        msg  TYPE bapi_msg.
 TYPES: END OF ty_alv_0300.
@@ -143,7 +141,7 @@ DATA: ok_0300               TYPE sy-ucomm,
       go_doc_container_0300 TYPE ty_ref_doc_container.
 
 CONSTANTS: c_container_0300 TYPE scrfname      VALUE 'CONTAINER_0300',
-           c_alv_st_0300    TYPE dd02l-tabname VALUE 'KNA1', "TODO-DDIC adattare con la propria struttura
+           c_alv_st_0300    TYPE dd02l-tabname VALUE 'KNA1', "TODO-DDIC
            c_dynnr_0300     TYPE sy-dynnr      VALUE '0300'.
 *--------------------------------------------------------------------*
 
@@ -275,7 +273,7 @@ FORM print_alv USING    x_cont_name      TYPE scrfname
 
   CALL METHOD yo_alv_ref->set_table_for_first_display
     EXPORTING
-*     i_save                        = 'A'
+      i_save                        = 'A'
       is_layout                     = ls_layout
     CHANGING
       it_outtab                     = xt_table[] "<dyn_table>
@@ -402,7 +400,6 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
   ENDCASE.
 
   "TODO-FIELDCAT
-  "Sezione per modifiche manuali su campi da DDIC
   LOOP AT yt_fcat ASSIGNING <fcat>.
     CASE sy-dynnr.
       WHEN c_dynnr_0100.
