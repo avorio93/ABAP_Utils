@@ -368,7 +368,7 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
                                      WHERE fieldname NE 'ICON'.
 
   "TODO-FIELDCAT
-  "Sezione per aggiunta di campi manuali
+  "TO add new fields manually
   CASE sy-dynnr.
     WHEN c_dynnr_0100.
 
@@ -400,6 +400,7 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
   ENDCASE.
 
   "TODO-FIELDCAT
+  "Change properties of existing fcat fields
   LOOP AT yt_fcat ASSIGNING <fcat>.
     CASE sy-dynnr.
       WHEN c_dynnr_0100.
@@ -649,62 +650,9 @@ FORM handle_toolbar  CHANGING y_object      TYPE REF TO cl_alv_event_toolbar_set
       lw_toolbar-quickinfo = 'Function'.
       APPEND lw_toolbar TO y_object->mt_toolbar.
 
-      "BTN
-      CLEAR lw_toolbar.
-      lw_toolbar-function  = '&SCR200'.
-      lw_toolbar-icon      = c_icon_exec.
-      lw_toolbar-butn_type = '0'.
-      lw_toolbar-text      = 'Screen 200'.
-      lw_toolbar-quickinfo = 'Screen 200'.
-      APPEND lw_toolbar TO y_object->mt_toolbar.
-
-      "BTN
-      CLEAR lw_toolbar.
-      lw_toolbar-function  = '&SCR300'.
-      lw_toolbar-icon      = c_icon_exec.
-      lw_toolbar-butn_type = '0'.
-      lw_toolbar-text      = 'Screen 300'.
-      lw_toolbar-quickinfo = 'Screen 300'.
-      APPEND lw_toolbar TO y_object->mt_toolbar.
-
-
     WHEN c_dynnr_0200.
-      "BTN
-      CLEAR lw_toolbar.
-      lw_toolbar-function  = '&SCR100'.
-      lw_toolbar-icon      = c_icon_exec.
-      lw_toolbar-butn_type = '0'.
-      lw_toolbar-text      = 'Screen 100'.
-      lw_toolbar-quickinfo = 'Screen 100'.
-      APPEND lw_toolbar TO y_object->mt_toolbar.
-
-      "BTN
-      CLEAR lw_toolbar.
-      lw_toolbar-function  = '&SCR300'.
-      lw_toolbar-icon      = c_icon_exec.
-      lw_toolbar-butn_type = '0'.
-      lw_toolbar-text      = 'Screen 300'.
-      lw_toolbar-quickinfo = 'Screen 300'.
-      APPEND lw_toolbar TO y_object->mt_toolbar.
 
     WHEN c_dynnr_0300.
-      "BTN
-      CLEAR lw_toolbar.
-      lw_toolbar-function  = '&SCR100'.
-      lw_toolbar-icon      = c_icon_exec.
-      lw_toolbar-butn_type = '0'.
-      lw_toolbar-text      = 'Screen 100'.
-      lw_toolbar-quickinfo = 'Screen 100'.
-      APPEND lw_toolbar TO y_object->mt_toolbar.
-
-      "BTN
-      CLEAR lw_toolbar.
-      lw_toolbar-function  = '&SCR200'.
-      lw_toolbar-icon      = c_icon_exec.
-      lw_toolbar-butn_type = '0'.
-      lw_toolbar-text      = 'Screen 200'.
-      lw_toolbar-quickinfo = 'Screen 200'.
-      APPEND lw_toolbar TO y_object->mt_toolbar.
 
     WHEN OTHERS.
   ENDCASE.
@@ -726,7 +674,7 @@ FORM handle_user_command  USING x_ucomm TYPE sy-ucomm.
     WHEN '&BTN'.
 
       REFRESH lt_selected_rows.
-      CALL METHOD go_alv_0100->get_selected_rows
+      CALL METHOD go_instance_event->get_selected_rows
         IMPORTING
           et_index_rows = lt_selected_rows.
       IF lt_selected_rows[] IS NOT INITIAL.
@@ -744,8 +692,6 @@ FORM handle_user_command  USING x_ucomm TYPE sy-ucomm.
         EXIT.
       ENDIF.
 
-      PERFORM refresh_table USING go_alv_0100.
-
     WHEN '&SCR100'.
       PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
       CALL SCREEN 100.
@@ -757,9 +703,10 @@ FORM handle_user_command  USING x_ucomm TYPE sy-ucomm.
     WHEN '&SCR300'.
       PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
       CALL SCREEN 300.
-
-
+      
   ENDCASE.
+  
+  PERFORM refresh_table USING go_instance_event.
 
 ENDFORM.                    " HANDLE_USER_COMMAND
 *&---------------------------------------------------------------------*
