@@ -32,6 +32,9 @@ REPORT zag_simple_alv.
 
 *) "TODO-EVENT_METHOD
 "   Adapt the handlers method implementation into the marked points
+
+*) "TODO-CELL_COLOR
+"   Adapt the routine for color single cells
 *--------------------------------------------------------------------*
 
 **********************************************************************
@@ -60,17 +63,23 @@ DATA: go_instance_event   TYPE ty_ref_alv,
       gt_toolbar          TYPE ttb_button,
       ok_code             TYPE sy-ucomm.
 
-CONSTANTS: c_x                      VALUE 'X',
-           c_e                      VALUE 'E',
-           c_yes                    VALUE '1',
-           c_no                     VALUE '0',
-           c_icon_green TYPE icon_d VALUE '@5B@',
-           c_icon_red   TYPE icon_d VALUE '@5C@',
-           c_icon_yell  TYPE icon_d VALUE '@5D@',
-           c_icon_info  TYPE icon_d VALUE '@0S@',
-           c_icon_miss  TYPE icon_d VALUE '@D7@',
-           c_icon_exec  TYPE icon_d VALUE '@15@',
-           c_icon_refr  TYPE icon_d VALUE '@42@'.
+CONSTANTS: c_x                            VALUE 'X',
+           c_e                            VALUE 'E',
+           c_yes                          VALUE '1',
+           c_no                           VALUE '0',
+           c_icon_green     TYPE icon_d   VALUE '@5B@',
+           c_icon_red       TYPE icon_d   VALUE '@5C@',
+           c_icon_yell      TYPE icon_d   VALUE '@5D@',
+           c_icon_info      TYPE icon_d   VALUE '@0S@',
+           c_icon_miss      TYPE icon_d   VALUE '@D7@',
+           c_icon_exec      TYPE icon_d   VALUE '@15@',
+           c_icon_refr      TYPE icon_d   VALUE '@42@',
+           c_icon_save      TYPE icon_d   VALUE '@2L@',
+           c_cell_col_green TYPE lvc_col  VALUE '5',
+           c_cell_col_yell  TYPE lvc_col  VALUE '3',
+           c_cell_col_red   TYPE lvc_col  VALUE '6',
+           c_cell_col_oran  TYPE lvc_col  VALUE '7',
+           c_cell_col_null  TYPE lvc_col  VALUE '2'.
 *--------------------------------------------------------------------*
 
 
@@ -80,8 +89,9 @@ CONSTANTS: c_x                      VALUE 'X',
 *--------------------------------------------------------------------*
 TYPES: BEGIN OF ty_alv_0100.
         INCLUDE STRUCTURE t001. "TODO-DDIC
-TYPES: icon TYPE icon_d,
-       msg  TYPE bapi_msg.
+TYPES: icon  TYPE icon_d,
+       msg   TYPE bapi_msg,
+       c_col TYPE lvc_t_scol,
 TYPES: END OF ty_alv_0100.
 TYPES: tt_alv_0100 TYPE TABLE OF ty_alv_0100.
 
@@ -649,6 +659,22 @@ FORM handle_toolbar  CHANGING y_object      TYPE REF TO cl_alv_event_toolbar_set
       lw_toolbar-text      = 'Function'.
       lw_toolbar-quickinfo = 'Function'.
       APPEND lw_toolbar TO y_object->mt_toolbar.
+      
+      CLEAR lw_toolbar.
+      lw_toolbar-function  = '&SAVE_0100'.
+      lw_toolbar-icon      = c_icon_save.
+      lw_toolbar-butn_type = '0'.
+      lw_toolbar-text      = 'Save Data'.
+      lw_toolbar-quickinfo = 'Save Data'.
+      APPEND lw_toolbar TO y_object->mt_toolbar.
+      
+      CLEAR lw_toolbar.
+      lw_toolbar-function  = '&SCREEN_0200'.
+      lw_toolbar-icon      = c_icon_exec.
+      lw_toolbar-butn_type = '0'.
+      lw_toolbar-text      = 'Screen 0200'.
+      lw_toolbar-quickinfo = 'Screen 0200'.
+      APPEND lw_toolbar TO y_object->mt_toolbar.
 
     WHEN c_dynnr_0200.
 
@@ -683,20 +709,14 @@ FORM handle_user_command  USING x_ucomm TYPE sy-ucomm.
       
   CASE x_ucomm.
     WHEN '&BTN'.
-       PERFORM command_ USING lt_selected_row.
+*       PERFORM command_ USING lt_selected_row.
 
-
-    WHEN '&SCR100'.
-      PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
-      CALL SCREEN 100.
-
-    WHEN '&SCR200'.
+    WHEN '&SAVE_0100'.
+       PERFORM PERFORM command_save_data_0100 USING gt_changed_data[].
+    
+    WHEN '&SCREEN_0200'.
       PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
       CALL SCREEN 200.
-
-    WHEN '&SCR300'.
-      PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
-      CALL SCREEN 300.
       
   ENDCASE.
   
@@ -713,6 +733,78 @@ FORM handle_data_changed  CHANGING yr_data_changed  TYPE REF TO cl_alv_changed_d
   ENDIF.
 
 ENDFORM.                    " HANDLE_DATA_CHANGED
+*&---------------------------------------------------------------------*
+*& Form COMMAND_SAVE_DATA_0100
+*&---------------------------------------------------------------------*
+FORM command_save_data_0100  USING xt_changed_data TYPE lvc_t_modi.
+
+  LOOP AT xt_changed_data ASSIGNING FIELD-SYMBOL(<chng>).
+    READ TABLE gt_alv_0100 ASSIGNING FIELD-SYMBOL(<alv_0100>)
+                                            INDEX <chng>-row_id.
+    CHECK sy-subrc EQ 0.
+
+    ASSIGN COMPONENT <chng>-fieldname OF STRUCTURE <alv_0100>
+      TO FIELD-SYMBOL(<value>).
+    CHECK <value> IS ASSIGNED.
+
+    <value> = <chng>-value.
+
+  ENDLOOP.
+
+  CLEAR gt_changed_data[].
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form FILL_CELL_COLORS
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*& Form FILL_CELL_COLORS
+*&---------------------------------------------------------------------*
+FORM fill_cell_colors  USING    x_fieldname TYPE tabname
+                                x_struct    TYPE tabname
+                       CHANGING y_struct    TYPE any.
+   
+  "TODO-CELL_COLOR
+
+  FIELD-SYMBOLS: <alv_0100> LIKE LINE OF gt_alv_0100,
+                 <alv_0200> LIKE LINE OF gt_alv_0200,
+                 <alv_0300> LIKE LINE OF gt_alv_0300.
+
+  FIELD-SYMBOLS: <value> TYPE any.
+
+  UNASSIGN: <value>,
+            <alv_0100>, <alv_0200>, <alv_0300>.
+
+  CASE x_struct.
+    WHEN c_alv_st_0100.
+      ASSIGN y_struct TO <alv_0100>.
+
+      CHECK <alv_0100> IS ASSIGNED.
+
+      DELETE <alv_0100>-c_col[] WHERE fname EQ x_fieldname.
+
+      ASSIGN COMPONENT x_fieldname OF STRUCTURE y_struct TO <value>.
+      CHECK <value> IS ASSIGNED.
+
+      APPEND INITIAL LINE TO <alv_0100>-c_col[] ASSIGNING FIELD-SYMBOL(<color>).
+      <color>-fname = x_fieldname.
+      <color>-color-int = '1' . "intensified on 1 / 0 off
+
+      IF <value> EQ ''.
+        <color>-color-col = c_cell_col_red .
+      ELSE.
+        <color>-color-col = c_cell_col_yell .
+      ENDIF.
+
+
+    WHEN c_dynnr_0200.
+
+    WHEN c_dynnr_0300.
+
+    WHEN OTHERS.
+  ENDCASE.
+
+ENDFORM.
 
 
 
