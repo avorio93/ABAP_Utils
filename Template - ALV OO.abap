@@ -651,6 +651,17 @@ FORM handle_toolbar  CHANGING y_object      TYPE REF TO cl_alv_event_toolbar_set
 
   CASE sy-dynnr.
     WHEN c_dynnr_0100.
+    
+      CLEAR lw_toolbar.
+      lw_toolbar-icon      = c_icon_exec.
+      lw_toolbar-butn_type = '3'.
+      APPEND lw_toolbar TO y_object->mt_toolbar.
+      
+      CLEAR lw_toolbar.
+      lw_toolbar-icon      = c_icon_exec.
+      lw_toolbar-butn_type = '3'.
+      APPEND lw_toolbar TO y_object->mt_toolbar.
+      
       "BTN
       CLEAR lw_toolbar.
       lw_toolbar-function  = '&BTN'.
