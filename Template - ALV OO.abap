@@ -667,30 +667,24 @@ FORM handle_user_command  USING x_ucomm TYPE sy-ucomm.
   DATA: ls_alv             LIKE LINE OF gt_alv_0100,
             lt_selected_rows   TYPE lvc_t_row.
 
-  FIELD-SYMBOLS: <sel_rows> LIKE LINE OF lt_selected_rows,
-                 <alv_0100> LIKE LINE OF gt_alv_0100.
+  FIELD-SYMBOLS: <sel_rows> LIKE LINE OF lt_selected_rows.       
+       
+  REFRESH lt_selected_rows.
+  CALL METHOD go_instance_event->get_selected_rows
+     IMPORTING
+       et_index_rows = lt_selected_rows.
+   IF lt_selected_rows[] IS NOT INITIAL.
 
+   ELSE.
+*     MESSAGE s000(db) WITH 'Select at least one row'
+*                         DISPLAY LIKE c_e.
+*     EXIT.
+  ENDIF.
+      
   CASE x_ucomm.
     WHEN '&BTN'.
+       PERFORM command_ USING lt_selected_row.
 
-      REFRESH lt_selected_rows.
-      CALL METHOD go_instance_event->get_selected_rows
-        IMPORTING
-          et_index_rows = lt_selected_rows.
-      IF lt_selected_rows[] IS NOT INITIAL.
-
-        LOOP AT lt_selected_rows ASSIGNING <sel_rows>.
-          UNASSIGN <alv_0100>.
-          READ TABLE gt_alv_0100 ASSIGNING <alv_0100> INDEX <sel_rows>-index.
-          CHECK sy-subrc EQ 0.
-
-        ENDLOOP.
-
-      ELSE.
-        MESSAGE s000(db) WITH 'Selezionare almeno una riga'
-                         DISPLAY LIKE c_e.
-        EXIT.
-      ENDIF.
 
     WHEN '&SCR100'.
       PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
