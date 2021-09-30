@@ -592,7 +592,10 @@ FORM check_if_not_saved_data  CHANGING y_answer.
 
   CLEAR y_answer.
 
-  IF gt_changed_data[] IS NOT INITIAL.
+  IF gt_changed_data[] IS NOT INITIAL
+   OR gt_deleted_data[] IS NOT INITIAL.
+   OR gt_inserted_data[] IS NOT INITIAL.
+  
     CALL FUNCTION 'POPUP_TO_CONFIRM'
       EXPORTING
         text_question  = 'Dati non salvati. Procedere comunque?'
@@ -607,6 +610,8 @@ FORM check_if_not_saved_data  CHANGING y_answer.
 
   "Clear changed data if exit without save (YES)
   CLEAR gt_changed_data[].
+  CLEAR gt_deleted_data[].
+  CLEAR gt_inserted_data[]
 
 ENDFORM.                    "check_if_not_Saved_data
 *&---------------------------------------------------------------------*
@@ -759,18 +764,18 @@ ENDFORM.                    " HANDLE_DATA_CHANGED
 *&---------------------------------------------------------------------*
 FORM command_save_data_0100  USING xt_changed_data TYPE lvc_t_modi.
 
-  LOOP AT xt_changed_data ASSIGNING FIELD-SYMBOL(<chng>).
-    READ TABLE gt_alv_0100 ASSIGNING FIELD-SYMBOL(<alv_0100>)
-                                            INDEX <chng>-row_id.
-    CHECK sy-subrc EQ 0.
+*  LOOP AT xt_changed_data ASSIGNING FIELD-SYMBOL(<chng>).
+*    READ TABLE gt_alv_0100 ASSIGNING FIELD-SYMBOL(<alv_0100>)
+*                                            INDEX <chng>-row_id.
+*    CHECK sy-subrc EQ 0.
 
-    ASSIGN COMPONENT <chng>-fieldname OF STRUCTURE <alv_0100>
-      TO FIELD-SYMBOL(<value>).
-    CHECK <value> IS ASSIGNED.
+*    ASSIGN COMPONENT <chng>-fieldname OF STRUCTURE <alv_0100>
+*      TO FIELD-SYMBOL(<value>).
+*    CHECK <value> IS ASSIGNED.
 
-    <value> = <chng>-value.
+*    <value> = <chng>-value.
 
-  ENDLOOP.
+*  ENDLOOP.
 
   CLEAR gt_changed_data[].
   CLEAR gt_deleted_data[].
