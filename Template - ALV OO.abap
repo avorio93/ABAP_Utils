@@ -744,6 +744,14 @@ FORM handle_data_changed  CHANGING yr_data_changed  TYPE REF TO cl_alv_changed_d
   IF yr_data_changed->mt_good_cells[] IS NOT INITIAL.
     APPEND LINES OF yr_data_changed->mt_good_cells[] TO gt_changed_data[].
   ENDIF.
+  
+  IF yr_data_changed->mt_deleted_rows[] IS NOT INITIAL.
+    APPEND LINES OF yr_data_changed->mt_deleted_rows[] TO gt_deleted_data[].
+  ENDIF.
+
+  IF yr_data_changed->mt_inserted_rows[] IS NOT INITIAL.
+    APPEND LINES OF yr_data_changed->mt_inserted_rows[] TO gt_inserted_data[].
+  ENDIF.
 
 ENDFORM.                    " HANDLE_DATA_CHANGED
 *&---------------------------------------------------------------------*
@@ -765,6 +773,9 @@ FORM command_save_data_0100  USING xt_changed_data TYPE lvc_t_modi.
   ENDLOOP.
 
   CLEAR gt_changed_data[].
+  CLEAR gt_deleted_data[].
+  CLEAR gt_inserted_data[].
+  MESSAGE s000(db) WITH text-s00.
 
 ENDFORM.
 *&---------------------------------------------------------------------*
