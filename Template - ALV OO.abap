@@ -60,6 +60,8 @@ TYPES: BEGIN OF ty_stacktrace_dynnr,
 DATA: go_instance_event   TYPE ty_ref_alv,
       gt_stacktrace_dynnr TYPE TABLE OF ty_stacktrace_dynnr,
       gt_changed_data     TYPE lvc_t_modi,
+      gt_deleted_data     TYPE lvc_t_moce,
+      gt_inserted_data    TYPE lvc_t_moce,
       gt_toolbar          TYPE ttb_button,
       ok_code             TYPE sy-ucomm.
 
