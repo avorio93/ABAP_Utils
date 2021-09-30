@@ -471,6 +471,15 @@ FORM init_handlers  CHANGING yo_alv_ref TYPE ty_ref_alv.
         EXPORTING
           i_event_id = cl_gui_alv_grid=>mc_evt_enter.
 
+      CALL METHOD yo_alv_ref->register_edit_event
+        EXPORTING
+          i_event_id = cl_gui_alv_grid=>mc_evt_modified
+        EXCEPTIONS
+          error      = 1
+          OTHERS     = 2.
+
+      CALL METHOD yo_alv_ref->check_changed_data.
+
       CREATE OBJECT go_alv_event.
       SET HANDLER go_alv_event->handle_user_command    FOR yo_alv_ref.
       SET HANDLER go_alv_event->handle_toolbar         FOR yo_alv_ref.
