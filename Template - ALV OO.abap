@@ -406,7 +406,7 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
 
     WHEN c_dynnr_0200.
 
-    WHEN c_dynnr_0100.
+    WHEN c_dynnr_0300.
 
     WHEN OTHERS.
   ENDCASE.
@@ -424,7 +424,7 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
 
       WHEN c_dynnr_0200.
 
-      WHEN c_dynnr_0100.
+      WHEN c_dynnr_0300.
 
       WHEN OTHERS.
     ENDCASE.
