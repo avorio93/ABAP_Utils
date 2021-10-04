@@ -17,6 +17,7 @@ REPORT zag_utils.
 * - 12 - CONVERT DATA TO INTERNAL
 * - 13 - CONVERT DATA TO EXTERNAL
 * - 14 - BUILD HEADER FROM DDIC
+* - 15 - DISPLAY GENERIC ALV IN POPUP
 
 
 *&---------------------------------------------------------------------*
@@ -556,3 +557,40 @@ FORM get_header_output  USING    x_tracciato TYPE tabname
   ENDLOOP.
 
 ENDFORM.                    " GET_HEADER_OUTPUT
+*&---------------------------------------------------------------------*
+* - 15 - DISPLAY GENERIC ALV IN POPUP
+*&---------------------------------------------------------------------*
+FORM display_alv_popup  TABLES xt_alv TYPE STANDARD TABLE.
+
+*   PERFORM display_alv_popup TABLES gt_alv_0100.
+
+  DATA go_alv TYPE REF TO cl_salv_table.
+
+  TRY.
+      cl_salv_table=>factory(
+        IMPORTING
+          r_salv_table = go_alv
+        CHANGING
+          t_table      = xt_alv[] ).
+
+    CATCH cx_salv_msg.
+  ENDTRY.
+
+  DATA: lr_functions TYPE REF TO cl_salv_functions_list.
+
+  lr_functions = go_alv->get_functions( ).
+  lr_functions->set_all( 'X' ).
+
+  IF go_alv IS BOUND.
+
+    go_alv->set_screen_popup(
+      start_column = 1
+      end_column  = 100
+      start_line  = 1
+      end_line    = 15 ).
+
+    go_alv->display( ).
+
+  ENDIF.
+
+ENDFORM. "DISPLY_ALV_POPUP
