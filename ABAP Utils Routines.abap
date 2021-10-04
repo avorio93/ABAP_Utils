@@ -562,7 +562,7 @@ ENDFORM.                    " GET_HEADER_OUTPUT
 *&---------------------------------------------------------------------*
 FORM display_alv_popup  TABLES xt_alv TYPE STANDARD TABLE.
 
-*   PERFORM display_alv_popup TABLES gt_alv_0100.
+*   PERFORM display_alv_popup TABLES gt_sflight.
 
   DATA go_alv TYPE REF TO cl_salv_table.
 
