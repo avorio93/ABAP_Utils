@@ -10,14 +10,15 @@ REPORT zag_utils.
 * - 05 - CUSTOM MATCHCODE IN SELECTION SCREEN
 * - 06 - ALM BUFFER REFRESH
 * - 07 - CHANGE MANTAINANCE ORDER STATUS
-* - 0 - MATCHCODE FOR FILEPATH
-* - 09 - READ DATA FROM FILE
-* - 10 - WRITE DATA ON FILE
-* - 11 - DYNAMIC READING OF A STRUCTURE
-* - 12 - CONVERT DATA TO INTERNAL
-* - 13 - CONVERT DATA TO EXTERNAL
-* - 14 - BUILD HEADER FROM DDIC
-* - 15 - DISPLAY GENERIC ALV IN POPUP
+* - 08 - MATCHCODE FOR INPUT FILEPATH
+* - 09 - MATCHCODE FOR OUTPUT FILEPATH
+* - 10 - READ DATA FROM FILE
+* - 11 - WRITE DATA ON FILE
+* - 12 - DYNAMIC READING OF A STRUCTURE
+* - 13 - CONVERT DATA TO INTERNAL
+* - 1 - CONVERT DATA TO EXTERNAL
+* - 15 - BUILD HEADER FROM DDIC
+* - 16 - DISPLAY GENERIC ALV IN POPUP
 
 
 *&---------------------------------------------------------------------*
@@ -342,7 +343,12 @@ FORM status_change_extern USING x_aufnr   TYPE aufnr
 
 ENDFORM.                    " STATUS_CHANGE_EXTERN
 *&---------------------------------------------------------------------*
-* - 08 - MATCHCODE FOR FILEPATH
+* - 08 - MATCHCODE FOR INPUT FILEPATH
+*&---------------------------------------------------------------------*
+
+
+*&---------------------------------------------------------------------*
+* - 09 - MATCHCODE FOR OUTPUT FILEPATH
 *&---------------------------------------------------------------------*
 FORM help_file_o  CHANGING p_path_o.
 
@@ -391,20 +397,20 @@ FORM help_file_o  CHANGING p_path_o.
 ENDFORM.                    " HELP_FILE_O
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
-* - 09 - READ DATA FROM FILE
+* - 10 - READ DATA FROM FILE
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 
 
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
-* - 10 - WRITE DATA ON FILE
+* - 11 - WRITE DATA ON FILE
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 
 
 *&---------------------------------------------------------------------*
-* - 11- DYNAMIC READING OF A STRUCTURE
+* - 12 - DYNAMIC READING OF A STRUCTURE
 *&---------------------------------------------------------------------*
 FORM check_dyn_structure USING x_data
                                x_structure_name TYPE tabname.
@@ -436,7 +442,7 @@ FORM check_dyn_structure USING x_data
 
 ENDFORM.          " CHECK_DYN_STRUCTURE
 *&---------------------------------------------------------------------*
-* - 12 - CONVERT DATA TO INTERNAL
+* - 13 - CONVERT DATA TO INTERNAL
 *&---------------------------------------------------------------------*
 FORM convert_data_to_internal USING    value(x_ext_data)
                               CHANGING y_int_data TYPE dats.
@@ -457,7 +463,7 @@ FORM convert_data_to_internal USING    value(x_ext_data)
 
 ENDFORM.          " CONVERT_DATA_TO_INTERNAL
 *&---------------------------------------------------------------------*
-* - 13 - CONVERT DATA TO EXTERNAL
+* - 14 - CONVERT DATA TO EXTERNAL
 *&---------------------------------------------------------------------*
 FORM convert_data_to_external USING    x_int_data    TYPE dats
                                        x_separator
@@ -485,7 +491,7 @@ FORM convert_data_to_external USING    x_int_data    TYPE dats
 
 ENDFORM.          " CONVERT_DATA_TO_EXTERNAL
 *&---------------------------------------------------------------------*
-* - 14 - BUILD HEADER FROM DDIC
+* - 15 - BUILD HEADER FROM DDIC
 *&---------------------------------------------------------------------*
 FORM get_header_output  USING    x_tracciato TYPE tabname
                         CHANGING y_header    TYPE string.
@@ -558,7 +564,7 @@ FORM get_header_output  USING    x_tracciato TYPE tabname
 
 ENDFORM.                    " GET_HEADER_OUTPUT
 *&---------------------------------------------------------------------*
-* - 15 - DISPLAY GENERIC ALV IN POPUP
+* - 16 - DISPLAY GENERIC ALV IN POPUP
 *&---------------------------------------------------------------------*
 FORM display_alv_popup  TABLES xt_alv TYPE STANDARD TABLE.
 
