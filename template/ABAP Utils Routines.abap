@@ -16,9 +16,10 @@ REPORT zag_utils.
 * - 11 - WRITE DATA ON FILE
 * - 12 - DYNAMIC READING OF A STRUCTURE
 * - 13 - CONVERT DATA TO INTERNAL
-* - 1 - CONVERT DATA TO EXTERNAL
+* - 14 - CONVERT DATA TO EXTERNAL
 * - 15 - BUILD HEADER FROM DDIC
 * - 16 - DISPLAY GENERIC ALV IN POPUP
+* - 17 - SEND MAIL
 
 
 *&---------------------------------------------------------------------*
@@ -600,3 +601,139 @@ FORM display_alv_popup  TABLES xt_alv TYPE STANDARD TABLE.
   ENDIF.
 
 ENDFORM. "DISPLY_ALV_POPUP
+*&---------------------------------------------------------------------*
+*& - 17 - SEND MAIL
+*&---------------------------------------------------------------------*
+FORM send_mail .
+
+  "Adapt the points marked with TODO tag
+*  PERFORM send_mail.
+
+  DATA: doc_chng LIKE sodocchgi1,
+        objcont  LIKE TABLE OF solisti1 WITH HEADER LINE,
+        content1 LIKE solisti1,
+        entries  TYPE int4,
+        reclist  LIKE TABLE OF somlreci1 WITH HEADER LINE,
+        pack_wa TYPE sopcklsti1,
+        packing_list TYPE TABLE OF sopcklsti1 INITIAL SIZE 1.
+
+  DATA: header  TYPE thead,
+        lines   TYPE TABLE OF tline,
+        endline TYPE sy-tabix.
+
+  "TODO adapt
+  DATA: std_text_name TYPE thead-tdname VALUE 'ZYOUR_STD_TEXT'.
+*--------------------------------------------------------------------*
+
+  CLEAR: content1, objcont[], reclist[].
+
+  CLEAR: header, lines[].
+  CALL FUNCTION 'READ_TEXT'
+    EXPORTING
+      id                      = 'ST'
+      language                = sy-langu
+      name                    = std_text_name
+      object                  = 'TEXT'
+    IMPORTING
+      header                  = header
+    TABLES
+      lines                   = lines
+    EXCEPTIONS
+      id                      = 1
+      language                = 2
+      name                    = 3
+      not_found               = 4
+      object                  = 5
+      reference_check         = 6
+      wrong_access_to_archive = 7
+      OTHERS                  = 8.
+  IF sy-subrc EQ 0.
+
+*    DESCRIBE TABLE lines LINES data(lv_lines).
+    DATA lv_lines TYPE i.
+    DESCRIBE TABLE lines LINES lv_lines.
+
+*    LOOP AT lines ASSIGNING field-symbol(<lines>).
+    FIELD-SYMBOLS: <lines> LIKE LINE OF lines.
+    LOOP AT lines ASSIGNING <lines>.
+
+      "TODO adapt
+      IF <lines>-tdline CS '&your_variable&'.
+        REPLACE '&your_variable&' IN <lines>-tdline WITH ''.
+      ENDIF.
+
+      content1 = <lines>-tdline.
+      APPEND content1 TO objcont.
+    ENDLOOP.
+
+  ELSE.
+
+    CONCATENATE ''
+                'Corpo della mail'
+                INTO content1
+                SEPARATED BY space.
+
+    APPEND content1 TO objcont.
+
+  ENDIF.
+
+  CLEAR entries.
+  DESCRIBE TABLE objcont LINES entries.
+  READ TABLE objcont INDEX entries.
+  doc_chng-doc_size = ( entries - 1 ) * 255 + strlen( objcont ).
+
+  "TODO adapt
+  doc_chng-obj_name   = 'NOME_MAIL'.
+  "TODO adapt
+  doc_chng-obj_descr  = 'Oggetto della mail'.
+  doc_chng-sensitivty = 'P'.
+
+  DATA: lt_receiver TYPE TABLE OF tvarvc.
+  SELECT * FROM tvarvc
+    INTO TABLE lt_receiver
+    WHERE name EQ 'ZYOUR_PARAM'. "TODO adapt
+
+*  LOOP AT lt_receiver ASSIGNING field-symbol(<receiver>).
+  FIELD-SYMBOLS: <receiver> LIKE LINE OF lt_receiver.
+  LOOP AT lt_receiver ASSIGNING <receiver>.
+
+    reclist-receiver = <receiver>-low.
+    reclist-rec_type = 'U'.
+    reclist-express  = 'X'.
+    APPEND reclist.
+  ENDLOOP.
+
+  IF reclist[] IS INITIAL.
+    "TODO adapt
+    MESSAGE i001(00) WITH 'Destinatari mancanti in tabella TVARVC.'.
+    EXIT.
+  ENDIF.
+
+  pack_wa-doc_type = 'HTM'.
+  pack_wa-head_start = 1.
+  pack_wa-head_num   = 0.
+  pack_wa-body_start = 1.
+  pack_wa-body_num = lines( objcont ).
+
+  APPEND pack_wa TO packing_list.
+
+  CALL FUNCTION 'SO_DOCUMENT_SEND_API1'
+    EXPORTING
+      document_data              = doc_chng
+      sender_address             = 'YOUR_SENDED' "TODO adapt
+      commit_work                = 'X'
+    TABLES
+      packing_list               = packing_list
+      contents_txt               = objcont
+      receivers                  = reclist
+    EXCEPTIONS
+      too_many_receivers         = 1
+      document_not_sent          = 2
+      document_type_not_exist    = 3
+      operation_no_authorization = 4
+      parameter_error            = 5
+      x_error                    = 6
+      enqueue_error              = 7
+      OTHERS                     = 8.
+
+ENDFORM.                    " SEND_MAIL
