@@ -346,19 +346,67 @@ ENDFORM.                    " STATUS_CHANGE_EXTERN
 *&---------------------------------------------------------------------*
 * - 08 - MATCHCODE FOR INPUT FILEPATH
 *&---------------------------------------------------------------------*
+FORM help_file_input CHANGING y_path_input.
+
+*  DATA p_serv_x.
+*  DATA p_locl_x.
+*  PERFORM help_file CHANGING p_path.
+
+  DATA: lv_path TYPE string.
+
+  IF p_serv_x EQ 'X'.
+
+    CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
+*      EXPORTING
+*       directory        = cv_pathup
+*        filemask         = '.csv'
+      IMPORTING
+        serverfile       = lv_path
+      EXCEPTIONS
+        canceled_by_user = 1
+        OTHERS           = 2.
+    IF sy-subrc <> 0.
+*     Implement suitable error handling here
+    ELSE.
+      y_path_input = lv_path.
+    ENDIF.
+
+  ELSEIF p_locl_x EQ 'X'.
+
+    CALL FUNCTION 'WS_FILENAME_GET'
+      EXPORTING
+*        mask             = ',*.csv,*.csv.'
+        mode             = 'O'
+      IMPORTING
+        filename         = lv_path
+      EXCEPTIONS
+        inv_winsys       = 01
+        no_batch         = 02
+        selection_cancel = 03
+        selection_error  = 04.
+    IF sy-subrc <> 0.
+*     Implement suitable error handling here
+    ELSE.
+      y_path_input = lv_path.
+    ENDIF.
+
+  ENDIF.
+
+ENDFORM.                    " HELP_FILE_INPUT
 
 
 *&---------------------------------------------------------------------*
 * - 09 - MATCHCODE FOR OUTPUT FILEPATH
 *&---------------------------------------------------------------------*
-FORM help_file_o  CHANGING p_path_o.
+FORM help_file_output CHANGING y_path_output.
 
+*  DATA p_serv_y.
+*  DATA p_locl_y.
 *  PERFORM help_file_o CHANGING p_path_o.
 
-  DATA: p_loc_o.
   DATA: lv_path TYPE string.
 
-  IF p_loc_o IS INITIAL.
+  IF p_serv_y EQ 'X'.
 
     CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
       EXPORTING
@@ -372,10 +420,10 @@ FORM help_file_o  CHANGING p_path_o.
     IF sy-subrc <> 0.
 *     Implement suitable error handling here
     ELSE.
-      iv_path_o = lv_path.
+      y_path_output = lv_path.
     ENDIF.
 
-  ELSE.
+  ELSEIF p_locl_y EQ 'X'.
 
     CALL METHOD cl_gui_frontend_services=>directory_browse
       EXPORTING
@@ -392,21 +440,18 @@ FORM help_file_o  CHANGING p_path_o.
       "implement suitable error handling here
     ELSE.
       CALL METHOD cl_gui_cfw=>flush( ).
-      iv_path_o = lv_path.
+      y_path_output = lv_path.
     ENDIF.
   ENDIF.
-ENDFORM.                    " HELP_FILE_O
-*&---------------------------------------------------------------------*
+  
+ENDFORM.                    " HELP_FILE_OUTPUT
 *&---------------------------------------------------------------------*
 * - 10 - READ DATA FROM FILE
 *&---------------------------------------------------------------------*
-*&---------------------------------------------------------------------*
 
 
-*&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 * - 11 - WRITE DATA ON FILE
-*&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 
 
