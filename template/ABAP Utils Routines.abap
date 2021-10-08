@@ -144,13 +144,11 @@ ENDFORM.                    " NUMBER_GET_NEXT
 * - 04 - FILL INTERNAL RANGE FROM SET GS01/GS02/GS03
 *&---------------------------------------------------------------------*
 FORM get_values_from_set  USING    x_setname       TYPE string
-                          CHANGING yt_range_values TYPE hrrange. "tt_hrrange.
+                          CHANGING yt_range_values TYPE tt_hrrange.
 
-  "TODO dichiarare tt_hrrange nel top e modificare la firma del metodo da hrrange a tt_hrrange
+  "TODO dichiarare tt_hrrange nel top
 *  TYPES: tt_hrrange TYPE TABLE OF hrrange.
-
 *  DATA: lr_my_range TYPE tt_hrrange.
-
 *  CONSTANTS: c_my_set_name TYPE string VALUE 'ZMY_SET_NAME'.
 
 *  PERFORM get_values_from_set USING    c_my_set_name
@@ -200,11 +198,10 @@ ENDFORM.          " GET_VALUES_FROM_SET
 *&---------------------------------------------------------------------*
 FORM f4_my_field .
 
-
-  "Change the name based on field needed
+  "TODO Change the name based on field needed
   "Adapt SFLIGHT table to your own
 *  PARAMETERS: p_carrid TYPE sflight-carrid,
-*        p_fldate TYPE sflight-fldate.
+*              p_fldate TYPE sflight-fldate.
 *
 *  PERFORM f4_my_field.
 
@@ -410,7 +407,7 @@ FORM help_file_output CHANGING y_path_output.
 
     CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
       EXPORTING
-        directory        = cv_pathup
+*        directory        = ''
         filemask         = '.hello'
       IMPORTING
         serverfile       = lv_path
@@ -482,7 +479,7 @@ FORM check_dyn_structure USING x_data
     ASSIGN COMPONENT <component>-name OF STRUCTURE x_data TO <dyn_value>.
     CHECK <dyn_value> IS ASSIGNED.
 
-    "Do something
+    "TODO Do something
 
   ENDLOOP.
 
