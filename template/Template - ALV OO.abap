@@ -93,7 +93,7 @@ TYPES: BEGIN OF ty_alv_0100.
         INCLUDE STRUCTURE t001. "TODO-DDIC
 TYPES: icon  TYPE icon_d,
        msg   TYPE bapi_msg,
-       c_col TYPE lvc_t_scol.
+*       c_col TYPE lvc_t_scol.
 TYPES: END OF ty_alv_0100.
 TYPES: tt_alv_0100 TYPE TABLE OF ty_alv_0100.
 
