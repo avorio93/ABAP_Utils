@@ -92,7 +92,7 @@ CONSTANTS: c_x                            VALUE 'X',
 TYPES: BEGIN OF ty_alv_0100.
         INCLUDE STRUCTURE t001. "TODO-DDIC
 TYPES: icon  TYPE icon_d,
-       msg   TYPE bapi_msg,
+       msg   TYPE bapi_msg.
 *       c_col TYPE lvc_t_scol.
 TYPES: END OF ty_alv_0100.
 TYPES: tt_alv_0100 TYPE TABLE OF ty_alv_0100.
@@ -602,7 +602,7 @@ FORM check_if_not_saved_data  CHANGING y_answer.
   CLEAR y_answer.
 
   IF gt_changed_data[] IS NOT INITIAL
-   OR gt_deleted_data[] IS NOT INITIAL.
+   OR gt_deleted_data[] IS NOT INITIAL
    OR gt_inserted_data[] IS NOT INITIAL.
   
     CALL FUNCTION 'POPUP_TO_CONFIRM'
@@ -620,7 +620,7 @@ FORM check_if_not_saved_data  CHANGING y_answer.
   "Clear changed data if exit without save (YES)
   CLEAR gt_changed_data[].
   CLEAR gt_deleted_data[].
-  CLEAR gt_inserted_data[]
+  CLEAR gt_inserted_data[].
 
 ENDFORM.                    "check_if_not_Saved_data
 *&---------------------------------------------------------------------*
@@ -739,7 +739,7 @@ FORM handle_user_command  USING x_ucomm TYPE sy-ucomm.
 *       PERFORM command_ USING lt_selected_row.
 
     WHEN '&SAVE_0100'.
-       PERFORM PERFORM command_save_data_0100 USING gt_changed_data[].
+*       PERFORM PERFORM command_save_data_0100 USING gt_changed_data[].
     
     WHEN '&SCREEN_0200'.
       PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
@@ -816,20 +816,20 @@ FORM fill_cell_colors  USING    x_fieldname TYPE tabname
 
       CHECK <alv_0100> IS ASSIGNED.
 
-      DELETE <alv_0100>-c_col[] WHERE fname EQ x_fieldname.
-
-      ASSIGN COMPONENT x_fieldname OF STRUCTURE y_struct TO <value>.
-      CHECK <value> IS ASSIGNED.
-
-      APPEND INITIAL LINE TO <alv_0100>-c_col[] ASSIGNING FIELD-SYMBOL(<color>).
-      <color>-fname = x_fieldname.
-      <color>-color-int = '1' . "intensified on 1 / 0 off
-
-      IF <value> EQ ''.
-        <color>-color-col = c_cell_col_red .
-      ELSE.
-        <color>-color-col = c_cell_col_yell .
-      ENDIF.
+*      DELETE <alv_0100>-c_col[] WHERE fname EQ x_fieldname.
+*
+*      ASSIGN COMPONENT x_fieldname OF STRUCTURE y_struct TO <value>.
+*      CHECK <value> IS ASSIGNED.
+*
+*      APPEND INITIAL LINE TO <alv_0100>-c_col[] ASSIGNING FIELD-SYMBOL(<color>).
+*      <color>-fname = x_fieldname.
+*      <color>-color-int = '1' . "intensified on 1 / 0 off
+*
+*      IF <value> EQ ''.
+*        <color>-color-col = c_cell_col_red .
+*      ELSE.
+*        <color>-color-col = c_cell_col_yell .
+*      ENDIF.
 
 
     WHEN c_dynnr_0200.
