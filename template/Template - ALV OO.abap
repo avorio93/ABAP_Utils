@@ -254,23 +254,30 @@ FORM print_alv USING    x_cont_name      TYPE scrfname
                         yo_alv_ref       TYPE ty_ref_alv
                         yo_doc_container TYPE ty_ref_doc_container.
 
-  DATA: lt_fcat   TYPE lvc_t_fcat,
-        ls_layout TYPE lvc_s_layo.
+  DATA: lt_fcat      TYPE lvc_t_fcat,
+        ls_layout    TYPE lvc_s_layo,
+        lt_sort      TYPE lvc_t_sort,
+        ls_variant   TYPE disvariant,
+        ls_print     TYPE lvc_s_prnt.
 
   FIELD-SYMBOLS: <stacktrace> LIKE LINE OF gt_stacktrace_dynnr.
 
 *--------------------------------------------------------------------*
 
-  PERFORM init_container USING    x_cont_name
-                         CHANGING yo_container
-                                  yo_alv_ref
-                                  yo_doc_container.
+  PERFORM init_container    USING    x_cont_name
+                            CHANGING yo_container
+                                     yo_alv_ref
+                                     yo_doc_container.
 
-  PERFORM init_fieldcat USING    x_structure
-                        CHANGING lt_fcat[].
+  PERFORM init_fieldcat     USING    x_structure
+                            CHANGING lt_fcat[].
 
-  PERFORM init_layout USING xt_table
-                      CHANGING ls_layout.
+  PERFORM init_layout       USING    xt_table
+                            CHANGING ls_layout.
+
+  PERFORM init_sort         CHANGING lt_sort[].
+  PERFORM init_variant      CHANGING ls_variant.
+  PERFORM init_print_params CHANGING ls_print.
 
   UNASSIGN <stacktrace>.
   READ TABLE gt_stacktrace_dynnr ASSIGNING <stacktrace>
@@ -282,14 +289,16 @@ FORM print_alv USING    x_cont_name      TYPE scrfname
 
   PERFORM init_handlers CHANGING yo_alv_ref.
 
-
   CALL METHOD yo_alv_ref->set_table_for_first_display
     EXPORTING
       i_save                        = 'A'
       is_layout                     = ls_layout
+      is_variant                    = ls_variant
+      is_print                      = ls_print
     CHANGING
       it_outtab                     = xt_table[] "<dyn_table>
       it_fieldcatalog               = lt_fcat[]
+      it_sort                       = lt_sort[]
     EXCEPTIONS
       invalid_parameter_combination = 1
       program_error                 = 2
@@ -458,6 +467,83 @@ FORM init_layout  USING    xt_table  TYPE STANDARD TABLE
   ENDIF.
 
 ENDFORM.                    " INIT_LAYOUT
+*&---------------------------------------------------------------------*
+*&      Form  INIT_SORT
+*&---------------------------------------------------------------------*
+FORM init_sort  CHANGING yt_sort     TYPE lvc_t_sort.
+
+  FIELD-SYMBOLS: <sort> LIKE LINE OF yt_sort.
+
+  REFRESH yt_sort.
+
+  CASE sy-dynnr.
+    WHEN c_dynnr_0100.
+
+      UNASSIGN <sort>.
+      APPEND INITIAL LINE TO yt_sort ASSIGNING <sort>.
+      <sort>-spos      = 1.
+      <sort>-fieldname = 'MY_FIELD1'.
+      <sort>-subtot    = 'X'.
+
+      UNASSIGN <sort>.
+      APPEND INITIAL LINE TO yt_sort ASSIGNING <sort>.
+      <sort>-spos      = 2.
+      <sort>-fieldname = 'MY_FIELD2'.
+*      <sort>-subtot    = 'X'.
+
+    WHEN c_dynnr_0200.
+
+    WHEN c_dynnr_0300.
+
+    WHEN OTHERS.
+  ENDCASE.
+
+ENDFORM.                    " INIT_SORT
+*&---------------------------------------------------------------------*
+*&      Form  INIT_VARIANT
+*&---------------------------------------------------------------------*
+FORM init_variant  CHANGING y_variant TYPE disvariant.
+  
+  CLEAR y_variant.
+  
+  CASE sy-dynnr.
+    WHEN c_dynnr_0100.
+      y_variant-report   = sy-repid.
+      y_variant-username = sy-uname.
+
+*      y_variant-variant  = p_var.
+
+*      IF p_var IS INITIAL.
+*        y_variant-variant = '/DEFAULT'.
+*      ENDIF.
+
+    WHEN c_dynnr_0200.
+
+    WHEN c_dynnr_0300.
+
+  ENDCASE.
+
+ENDFORM.                    " INIT_VARIANT
+*&---------------------------------------------------------------------*
+*&      Form  INIT_PRINT_PARAMS
+*&---------------------------------------------------------------------*
+FORM init_print_params CHANGING y_print TYPE lvc_s_prnt.
+   
+  CLEAR y_print.
+  
+  CASE sy-dynnr.
+    WHEN c_dynnr_0100.
+
+    WHEN c_dynnr_0200.
+      IF sy-batch EQ space.
+        y_print-print = 'X'.
+      ENDIF.
+
+    WHEN c_dynnr_0300.
+
+  ENDCASE.
+
+ENDFORM.                    " INIT_PRINT_PARAMS
 *&---------------------------------------------------------------------*
 *&      Form  INIT_HANDLERS
 *&---------------------------------------------------------------------*
