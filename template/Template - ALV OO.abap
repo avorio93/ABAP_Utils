@@ -520,16 +520,16 @@ FORM init_sort  CHANGING yt_sort     TYPE lvc_t_sort.
   CASE sy-dynnr.
     WHEN c_dynnr_0100.
 
-      UNASSIGN <sort>.
-      APPEND INITIAL LINE TO yt_sort ASSIGNING <sort>.
-      <sort>-spos      = 1.
-      <sort>-fieldname = 'MY_FIELD1'.
-      <sort>-subtot    = 'X'.
-
-      UNASSIGN <sort>.
-      APPEND INITIAL LINE TO yt_sort ASSIGNING <sort>.
-      <sort>-spos      = 2.
-      <sort>-fieldname = 'MY_FIELD2'.
+*      UNASSIGN <sort>.
+*      APPEND INITIAL LINE TO yt_sort ASSIGNING <sort>.
+*      <sort>-spos      = 1.
+*      <sort>-fieldname = 'MY_FIELD1'.
+*      <sort>-subtot    = 'X'.
+*
+*      UNASSIGN <sort>.
+*      APPEND INITIAL LINE TO yt_sort ASSIGNING <sort>.
+*      <sort>-spos      = 2.
+*      <sort>-fieldname = 'MY_FIELD2'.
 *      <sort>-subtot    = 'X'.
 
     WHEN c_dynnr_0200.
