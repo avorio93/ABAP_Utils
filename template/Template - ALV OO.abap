@@ -7,33 +7,44 @@ REPORT zag_simple_alv.
 "Mandatory Activities
 *--------------------------------------------------------------------*
 *) EACH CALLL SCREEN MUST BE CALLED IN THE FOLLOWING WAY, OTHERWISE THE TEMPLATE WILL NOT WORK!
-"     PERFORM update_stacktrace USING sy-dynnr     "Start dynpro
-"                                     c_dynnr_0100 "End dynpro.
-"     CALL SCREEN 100.
+"     PERFORM call_Screen USING screen_number
 
-*) "TODO-DDIC
-"   Adapt the marked points with own DDIC 
+*) "TEMPLATE-DDIC
+"   Adapt the marked points with own DDIC
 
-*) "TODO-PF_TITLE
+*) "TEMPLATE-PF_TITLE
 "  Create PF-STATUS called ZPF_GENERIC already set as default for dynpro into the template
 "  Create PF-STATUS and TITLEBAR for your dynpro into the marked points if you want specific commands
 
 *) Adapt PAI user command module of each created dynpro
 "   If you are using ZPF_GENERIC, use module USER_COMMAND_GENERIC with OK_CODE variable to handle command
+
 *--------------------------------------------------------------------*
 
 "Optional Activities
 *--------------------------------------------------------------------*
-*) "TODO-FIELDCAT
+*) "TEMPLATE-FIELDCAT
 "   Adapt fieldcat if you need into marked points
 
-*) "TODO-HANDLER
+*) "TEMPLATE-LAYOUT
+"   Adapt the layout if you need into marked points
+
+*) "TEMPLATE-SORT
+"   Adapt the sort options and subtotals if you need into marked points
+
+*) "TEMPLATE-VARIANT
+"   Adapt user variant if you need into marked points
+
+*) "TEMPLATE-PRINT_PARAMS
+"   Adapt print params if you need into marked points
+
+*) "TEMPLATE-HANDLER
 "   Adapt your handler into the marked points
 
-*) "TODO-EVENT_METHOD
+*) "TEMPLATE-EVENT_METHOD
 "   Adapt the handlers method implementation into the marked points
 
-*) "TODO-CELL_COLOR
+*) "TEMPLATE-CELL_COLOR
 "   Adapt the routine for color single cells
 *--------------------------------------------------------------------*
 
@@ -82,6 +93,31 @@ CONSTANTS: c_x                            VALUE 'X',
            c_cell_col_red   TYPE lvc_col  VALUE '6',
            c_cell_col_oran  TYPE lvc_col  VALUE '7',
            c_cell_col_null  TYPE lvc_col  VALUE '2'.
+
+*--------------------------------------------------------------------*
+"CALL SCREEN
+*--------------------------------------------------------------------*
+FORM call_screen USING x_screen.
+
+  DATA: lv_dynnr TYPE n LENGTH 4.
+  FIELD-SYMBOLS: <stacktrace> LIKE LINE OF gt_stacktrace_dynnr.
+
+  lv_dynnr = x_screen.
+
+  UNASSIGN <stacktrace>.
+  READ TABLE gt_stacktrace_dynnr WITH KEY dynnr        = lv_dynnr
+                                          dynnr_parent = sy-dynnr
+                                          TRANSPORTING NO FIELDS.
+  IF sy-subrc <> 0.
+    APPEND INITIAL LINE TO gt_stacktrace_dynnr ASSIGNING <stacktrace>.
+    <stacktrace>-dynnr        = lv_dynnr.
+    <stacktrace>-dynnr_parent = sy-dynnr.
+  ENDIF.
+
+  CALL SCREEN lv_dynnr.
+
+ENDFORM. "CALL SCREEN
+
 *--------------------------------------------------------------------*
 
 
@@ -90,7 +126,7 @@ CONSTANTS: c_x                            VALUE 'X',
 "Structure ALV screen 100 + Type Table
 *--------------------------------------------------------------------*
 TYPES: BEGIN OF ty_alv_0100.
-        INCLUDE STRUCTURE t001. "TODO-DDIC
+        INCLUDE STRUCTURE t001. "TEMPLATE-DDIC
 TYPES: icon  TYPE icon_d,
        msg   TYPE bapi_msg.
 *       c_col TYPE lvc_t_scol.
@@ -105,7 +141,7 @@ DATA: ok_0100               TYPE sy-ucomm,
       go_doc_container_0100 TYPE ty_ref_doc_container.
 
 CONSTANTS: c_container_0100 TYPE scrfname      VALUE 'CONTAINER_0100',
-           c_alv_st_0100    TYPE dd02l-tabname VALUE 'T001', "TODO-DDIC
+           c_alv_st_0100    TYPE dd02l-tabname VALUE 'T001', "TEMPLATE-DDIC
            c_dynnr_0100     TYPE sy-dynnr      VALUE '0100'.
 *--------------------------------------------------------------------*
 
@@ -115,7 +151,7 @@ CONSTANTS: c_container_0100 TYPE scrfname      VALUE 'CONTAINER_0100',
 "Structure ALV screen 200 + Type Table
 *--------------------------------------------------------------------*
 TYPES: BEGIN OF ty_alv_0200.
-        INCLUDE STRUCTURE lfa1. "TODO-DDIC
+        INCLUDE STRUCTURE lfa1. "TEMPLATE-DDIC
 TYPES: icon TYPE icon_d,
        msg  TYPE bapi_msg.
 TYPES: END OF ty_alv_0200.
@@ -129,7 +165,7 @@ DATA: ok_0200               TYPE sy-ucomm,
       go_doc_container_0200 TYPE ty_ref_doc_container.
 
 CONSTANTS: c_container_0200 TYPE scrfname      VALUE 'CONTAINER_0200',
-           c_alv_st_0200    TYPE dd02l-tabname VALUE 'LFA1', "TODO-DDIC
+           c_alv_st_0200    TYPE dd02l-tabname VALUE 'LFA1', "TEMPLATE-DDIC
            c_dynnr_0200     TYPE sy-dynnr      VALUE '0200'.
 *--------------------------------------------------------------------*
 
@@ -139,7 +175,7 @@ CONSTANTS: c_container_0200 TYPE scrfname      VALUE 'CONTAINER_0200',
 "Structure ALV screen 300 + Type Table
 *--------------------------------------------------------------------*
 TYPES: BEGIN OF ty_alv_0300.
-        INCLUDE STRUCTURE kna1. "TODO-DDIC
+        INCLUDE STRUCTURE kna1. "TEMPLATE-DDIC
 TYPES: icon TYPE icon_d,
        msg  TYPE bapi_msg.
 TYPES: END OF ty_alv_0300.
@@ -153,7 +189,7 @@ DATA: ok_0300               TYPE sy-ucomm,
       go_doc_container_0300 TYPE ty_ref_doc_container.
 
 CONSTANTS: c_container_0300 TYPE scrfname      VALUE 'CONTAINER_0300',
-           c_alv_st_0300    TYPE dd02l-tabname VALUE 'KNA1', "TODO-DDIC
+           c_alv_st_0300    TYPE dd02l-tabname VALUE 'KNA1', "TEMPLATE-DDIC
            c_dynnr_0300     TYPE sy-dynnr      VALUE '0300'.
 *--------------------------------------------------------------------*
 
@@ -190,20 +226,20 @@ ENDCLASS.                    "lcl_event_toolbar DEFINITION
 CLASS cl_alv_event IMPLEMENTATION.
   METHOD handle_toolbar.
 
-    "TODO-EVENT_METHOD
+    "TEMPLATE-EVENT_METHOD
     PERFORM handle_toolbar CHANGING e_object
                                     e_interactive.
 
   ENDMETHOD.                    "handle_toolbar
   METHOD handle_user_command.
 
-    "TODO-EVENT_METHOD
+    "TEMPLATE-EVENT_METHOD
     PERFORM handle_user_command USING e_ucomm.
 
   ENDMETHOD.                    "handle_user_command
   METHOD handle_hotspot_click.
 
-    "TODO-EVENT_METHOD
+    "TEMPLATE-EVENT_METHOD
     PERFORM handle_hotspot_click USING e_row_id
                                        e_column_id
                                        es_row_no.
@@ -211,7 +247,7 @@ CLASS cl_alv_event IMPLEMENTATION.
   ENDMETHOD.                    "handle_hotspot_click
   METHOD handle_data_changed.
 
-    "TODO-EVENT_METHOD
+    "TEMPLATE-EVENT_METHOD
     PERFORM handle_data_changed CHANGING er_data_changed.
 
   ENDMETHOD.                    "handle_data_changed
@@ -388,7 +424,7 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
   MODIFY yt_fcat FROM ls_fcat TRANSPORTING col_opt
                                      WHERE fieldname NE 'ICON'.
 
-  "TODO-FIELDCAT
+  "TEMPLATE-FIELDCAT
   "TO add new fields manually
   CASE sy-dynnr.
     WHEN c_dynnr_0100.
@@ -420,7 +456,7 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
     WHEN OTHERS.
   ENDCASE.
 
-  "TODO-FIELDCAT
+  "TEMPLATE-FIELDCAT
   "Change properties of existing fcat fields
   LOOP AT yt_fcat ASSIGNING <fcat>.
     CASE sy-dynnr.
@@ -445,6 +481,8 @@ ENDFORM.                    " INIT_FIELDCAT
 *&---------------------------------------------------------------------*
 FORM init_layout  USING    xt_table  TYPE STANDARD TABLE
                   CHANGING ys_layout TYPE lvc_s_layo.
+
+  "TEMPLATE-LAYOUT
 
   FIELD-SYMBOLS: <row>       TYPE any,
                  <component> TYPE any.
@@ -472,8 +510,11 @@ ENDFORM.                    " INIT_LAYOUT
 *&---------------------------------------------------------------------*
 FORM init_sort  CHANGING yt_sort     TYPE lvc_t_sort.
 
+  "TEMPLATE-SORT
+
   FIELD-SYMBOLS: <sort> LIKE LINE OF yt_sort.
 
+*--------------------------------------------------------------------*
   REFRESH yt_sort.
 
   CASE sy-dynnr.
@@ -503,9 +544,11 @@ ENDFORM.                    " INIT_SORT
 *&      Form  INIT_VARIANT
 *&---------------------------------------------------------------------*
 FORM init_variant  CHANGING y_variant TYPE disvariant.
-  
+
+  "TEMPLATE-VARIANT
+
   CLEAR y_variant.
-  
+
   CASE sy-dynnr.
     WHEN c_dynnr_0100.
       y_variant-report   = sy-repid.
@@ -528,9 +571,11 @@ ENDFORM.                    " INIT_VARIANT
 *&      Form  INIT_PRINT_PARAMS
 *&---------------------------------------------------------------------*
 FORM init_print_params CHANGING y_print TYPE lvc_s_prnt.
-   
+
+  "TEMPLATE-PRINT_PARAMS
+
   CLEAR y_print.
-  
+
   CASE sy-dynnr.
     WHEN c_dynnr_0100.
 
@@ -552,7 +597,7 @@ FORM init_handlers  CHANGING yo_alv_ref TYPE ty_ref_alv.
   IF sy-batch EQ space.
     IF go_instance_event IS NOT INITIAL.
 
-      "TODO-HANDLER
+      "TEMPLATE-HANDLER
       CALL METHOD yo_alv_ref->register_edit_event
         EXPORTING
           i_event_id = cl_gui_alv_grid=>mc_evt_enter.
@@ -628,7 +673,7 @@ ENDMODULE.                    "user_command_generic INPUT
 *&---------------------------------------------------------------------*
 MODULE status_0100 OUTPUT.
 
-*  SET PF-STATUS 'ZPF_0100'.    "TODO-PF_TITLE
+*  SET PF-STATUS 'ZPF_0100'.    "TEMPLATE-PF_TITLE
   SET PF-STATUS 'ZPF_GENERIC'.
   SET TITLEBAR 'ZTIT_0100'.
 
@@ -645,7 +690,7 @@ ENDMODULE.                    "handle_hotspot_click
 *&---------------------------------------------------------------------*
 MODULE status_0200 OUTPUT.
 
-*  SET PF-STATUS 'ZPF_0200'.    "TODO-PF_TITLE
+*  SET PF-STATUS 'ZPF_0200'.    "TEMPLATE-PF_TITLE
   SET PF-STATUS 'ZPF_GENERIC'.
   SET TITLEBAR 'ZTIT_0200'.
 
@@ -662,7 +707,7 @@ ENDMODULE.                    "handle_hotspot_click
 *&---------------------------------------------------------------------*
 MODULE status_0300 OUTPUT.
 
-*  SET PF-STATUS 'ZPF_0300'.    "TODO-PF_TITLE
+*  SET PF-STATUS 'ZPF_0300'.    "TEMPLATE-PF_TITLE
   SET PF-STATUS 'ZPF_GENERIC'.
   SET TITLEBAR 'ZTIT_0300'.
 
@@ -690,7 +735,7 @@ FORM check_if_not_saved_data  CHANGING y_answer.
   IF gt_changed_data[] IS NOT INITIAL
    OR gt_deleted_data[] IS NOT INITIAL
    OR gt_inserted_data[] IS NOT INITIAL.
-  
+
     CALL FUNCTION 'POPUP_TO_CONFIRM'
       EXPORTING
         text_question  = 'Dati non salvati. Procedere comunque?'
@@ -753,17 +798,17 @@ FORM handle_toolbar  CHANGING y_object      TYPE REF TO cl_alv_event_toolbar_set
 
   CASE sy-dynnr.
     WHEN c_dynnr_0100.
-    
+
       CLEAR lw_toolbar.
       lw_toolbar-icon      = c_icon_exec.
       lw_toolbar-butn_type = '3'.
       APPEND lw_toolbar TO y_object->mt_toolbar.
-      
+
       CLEAR lw_toolbar.
       lw_toolbar-icon      = c_icon_exec.
       lw_toolbar-butn_type = '3'.
       APPEND lw_toolbar TO y_object->mt_toolbar.
-      
+
       "BTN
       CLEAR lw_toolbar.
       lw_toolbar-function  = '&BTN'.
@@ -772,7 +817,7 @@ FORM handle_toolbar  CHANGING y_object      TYPE REF TO cl_alv_event_toolbar_set
       lw_toolbar-text      = 'Function'.
       lw_toolbar-quickinfo = 'Function'.
       APPEND lw_toolbar TO y_object->mt_toolbar.
-      
+
       CLEAR lw_toolbar.
       lw_toolbar-function  = '&SAVE_0100'.
       lw_toolbar-icon      = c_icon_save.
@@ -780,7 +825,7 @@ FORM handle_toolbar  CHANGING y_object      TYPE REF TO cl_alv_event_toolbar_set
       lw_toolbar-text      = 'Save Data'.
       lw_toolbar-quickinfo = 'Save Data'.
       APPEND lw_toolbar TO y_object->mt_toolbar.
-      
+
       CLEAR lw_toolbar.
       lw_toolbar-function  = '&SCREEN_0200'.
       lw_toolbar-icon      = c_icon_exec.
@@ -803,36 +848,37 @@ ENDFORM.                    " HANDLE_TOOLBAR
 *&---------------------------------------------------------------------*
 FORM handle_user_command  USING x_ucomm TYPE sy-ucomm.
 
-  DATA: ls_alv             LIKE LINE OF gt_alv_0100,
-            lt_selected_rows   TYPE lvc_t_row.
+  DATA: lt_selected_rows   TYPE lvc_t_row.
 
-  FIELD-SYMBOLS: <sel_rows> LIKE LINE OF lt_selected_rows.       
-       
+  FIELD-SYMBOLS: <sel_rows> LIKE LINE OF lt_selected_rows.
+
   REFRESH lt_selected_rows.
   CALL METHOD go_instance_event->get_selected_rows
-     IMPORTING
-       et_index_rows = lt_selected_rows.
-   IF lt_selected_rows[] IS NOT INITIAL.
+    IMPORTING
+      et_index_rows = lt_selected_rows.
+  IF lt_selected_rows[] IS NOT INITIAL.
 
-   ELSE.
+  ELSE.
 *     MESSAGE s000(db) WITH 'Select at least one row'
 *                         DISPLAY LIKE c_e.
 *     EXIT.
   ENDIF.
-      
+
   CASE x_ucomm.
     WHEN '&BTN'.
 *       PERFORM command_ USING lt_selected_row.
 
     WHEN '&SAVE_0100'.
 *       PERFORM PERFORM command_save_data_0100 USING gt_changed_data[].
-    
+
     WHEN '&SCREEN_0200'.
-      PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
-      CALL SCREEN 200.
-      
+*      PERFORM update_stacktrace USING sy-dynnr c_dynnr_0200.
+*      CALL SCREEN 200.
+
+      PERFORM call_screen USING c_dynnr_0200.
+
   ENDCASE.
-  
+
   PERFORM refresh_table USING go_instance_event.
 
 ENDFORM.                    " HANDLE_USER_COMMAND
@@ -844,7 +890,7 @@ FORM handle_data_changed  CHANGING yr_data_changed  TYPE REF TO cl_alv_changed_d
   IF yr_data_changed->mt_good_cells[] IS NOT INITIAL.
     APPEND LINES OF yr_data_changed->mt_good_cells[] TO gt_changed_data[].
   ENDIF.
-  
+
   IF yr_data_changed->mt_deleted_rows[] IS NOT INITIAL.
     APPEND LINES OF yr_data_changed->mt_deleted_rows[] TO gt_deleted_data[].
   ENDIF.
@@ -884,8 +930,8 @@ ENDFORM.
 FORM fill_cell_colors  USING    x_fieldname TYPE tabname
                                 x_struct    TYPE tabname
                        CHANGING y_struct    TYPE any.
-   
-  "TODO-CELL_COLOR
+
+  "TEMPLATE-CELL_COLOR
 
   FIELD-SYMBOLS: <alv_0100> LIKE LINE OF gt_alv_0100,
                  <alv_0200> LIKE LINE OF gt_alv_0200,
@@ -926,29 +972,3 @@ FORM fill_cell_colors  USING    x_fieldname TYPE tabname
   ENDCASE.
 
 ENDFORM.
-
-
-
-START-OF-SELECTION.
-
-  SELECT * UP TO 10 ROWS
-    FROM t001 INTO TABLE gt_alv_0100.
-
-  SELECT * UP TO 10 ROWS
-  FROM lfa1 INTO TABLE gt_alv_0200.
-
-  SELECT * UP TO 10 ROWS
-FROM kna1 INTO TABLE gt_alv_0300.
-
-  DATA: ls_alv_0100 LIKE LINE OF gt_alv_0100.
-  DATA: ls_alv_0200 LIKE LINE OF gt_alv_0200.
-  DATA: ls_alv_0300 LIKE LINE OF gt_alv_0300.
-  ls_alv_0100-icon = c_icon_info.
-  ls_alv_0100-msg  = 'Test Flight'.
-
-  MODIFY gt_alv_0100 FROM ls_alv_0100 TRANSPORTING icon
-                                                   msg
-                                             WHERE icon EQ space.
-
-  PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
-  CALL SCREEN 100.
