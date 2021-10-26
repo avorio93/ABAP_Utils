@@ -63,7 +63,7 @@ TYPES: END OF ty_alv_0100.
 TYPES: tt_alv_0100 TYPE TABLE OF ty_alv_0100.
 
 DATA: gt_alv_0100  TYPE TABLE OF ty_alv_0100,
-      gt_tree_0100 TYPE TABLE OF ty_alv_0100,
+      gt_my_tree TYPE TABLE OF ty_alv_0100,
       gt_alv_det   TYPE TABLE OF ty_alv_0100.
 
 DATA: ok_0100               TYPE sy-ucomm,
@@ -88,7 +88,7 @@ TYPES: icon TYPE icon_d,
 TYPES: END OF ty_alv_0200.
 TYPES: tt_alv_0200 TYPE TABLE OF ty_alv_0200.
 
-DATA: gt_alv_0200 TYPE TABLE OF ty_alv_0200	.
+DATA: gt_alv_0200 TYPE TABLE OF ty_alv_0200  .
 
 DATA: ok_0200               TYPE sy-ucomm,
       go_container_0200     TYPE ty_ref_container,
@@ -124,7 +124,7 @@ CONSTANTS: c_container_0300 TYPE scrfname      VALUE 'CONTAINER_0300',
            c_dynnr_0300     TYPE sy-dynnr      VALUE '0300'.
 *--------------------------------------------------------------------*
 
-DATA: tree_0100  TYPE REF TO cl_gui_alv_tree,
+DATA: my_tree    TYPE REF TO cl_gui_alv_tree,
       mr_toolbar TYPE REF TO cl_gui_toolbar.
 
 
@@ -136,7 +136,6 @@ START-OF-SELECTION.
 
   SELECT * FROM t001l INTO TABLE gt_alv_0100.
 
-*  PERFORM update_stacktrace USING sy-dynnr c_dynnr_0100.
   CALL SCREEN 100.
 
 
@@ -164,21 +163,20 @@ CLASS cl_alv_event IMPLEMENTATION.
     DATA: ls_alv_0100      TYPE ty_alv_0100.
 
     CLEAR lt_selected_node[].
-    CALL METHOD tree_0100->get_selected_nodes
+    CALL METHOD my_tree->get_selected_nodes
       CHANGING
         ct_selected_nodes = lt_selected_node.
 
     CALL METHOD cl_gui_cfw=>flush.
 
-*    IF fcode NE 'REFRESH_ASBUILT'.
     READ TABLE lt_selected_node INTO DATA(l_selected_node) INDEX 1.
     IF lt_selected_node[] IS INITIAL.
-      MESSAGE i227(0h).
-      EXIT.
+*      MESSAGE i227(0h).
+*      EXIT.
     ENDIF.
 
     CLEAR ls_alv_0100.
-    CALL METHOD tree_0100->get_outtab_line
+    CALL METHOD my_tree->get_outtab_line
       EXPORTING
         i_node_key    = l_selected_node
       IMPORTING
@@ -197,9 +195,10 @@ CLASS cl_alv_event IMPLEMENTATION.
 
 *   update frontend
     CALL METHOD cl_gui_cfw=>flush( ).
-    CALL METHOD tree_0100->update_calculations.
-    CALL METHOD tree_0100->frontend_update.
+    CALL METHOD my_tree->update_calculations.
+    CALL METHOD my_tree->frontend_update.
   ENDMETHOD.
+
 ENDCLASS.
 
 TYPES ty_ref_alv_event TYPE REF TO cl_alv_event.
@@ -217,7 +216,7 @@ MODULE status_0100 OUTPUT.
   SET PF-STATUS 'ZPF_GENERIC'.
   SET TITLEBAR 'ZTIT_0100'.
 
-  IF tree_0100 IS INITIAL.
+  IF my_tree IS INITIAL.
     PERFORM init_tree.
   ENDIF.
 
@@ -265,7 +264,7 @@ FORM init_tree .
   ls_variant-report = sy-repid.
 
 * create emty tree-control
-  CALL METHOD tree_0100->set_table_for_first_display
+  CALL METHOD my_tree->set_table_for_first_display
     EXPORTING
       is_hierarchy_header  = ls_hierarchy_header
       it_list_commentary   = lt_list_commentary
@@ -275,7 +274,7 @@ FORM init_tree .
       is_variant           = ls_variant
       it_toolbar_excluding = lt_excl
     CHANGING
-      it_outtab            = gt_tree_0100 "table must be emty !!
+      it_outtab            = gt_my_tree "table must be emty !!
       it_fieldcatalog      = lt_fcat.
 
 * create hierarchy
@@ -288,7 +287,7 @@ FORM init_tree .
   PERFORM register_events.
 
 * adjust column_width
-  CALL METHOD tree_0100->column_optimize.
+  CALL METHOD my_tree->column_optimize.
 
 ENDFORM.
 *&---------------------------------------------------------------------*
@@ -318,7 +317,7 @@ FORM init_container .
   ENDIF.
 
 * create tree control
-  CREATE OBJECT tree_0100
+  CREATE OBJECT my_tree
     EXPORTING
       parent                      = go_container_0100
       node_selection_mode         = cl_gui_column_tree=>node_sel_mode_multiple
@@ -495,10 +494,10 @@ FORM create_hierarchy .
 
 
 * calculate totals
-  CALL METHOD tree_0100->update_calculations.
+  CALL METHOD my_tree->update_calculations.
 
 * this method must be called to send the data to the frontend
-  CALL METHOD tree_0100->frontend_update.
+  CALL METHOD my_tree->frontend_update.
 
 ENDFORM.
 *&---------------------------------------------------------------------*
@@ -521,7 +520,7 @@ FORM add_root_line  USING     x_line_data TYPE ty_alv_0100
   DATA: lt_item_layout TYPE lvc_t_layi,
         ls_item_layout TYPE lvc_s_layi.
   ls_item_layout-t_image = '@3P@'.
-  ls_item_layout-fieldname = tree_0100->c_hierarchy_column_name.
+  ls_item_layout-fieldname = my_tree->c_hierarchy_column_name.
   ls_item_layout-style   = cl_gui_column_tree=>style_intensifd_critical.
   APPEND ls_item_layout TO lt_item_layout.
 
@@ -535,7 +534,7 @@ FORM add_root_line  USING     x_line_data TYPE ty_alv_0100
   ls_node-exp_image = space.
   ls_node-isfolder  = 'X'.
 
-  CALL METHOD tree_0100->add_node
+  CALL METHOD my_tree->add_node
     EXPORTING
       i_relat_node_key = x_relat_key
       i_relationship   = cl_gui_column_tree=>relat_last_child
@@ -568,7 +567,7 @@ FORM add_node_line  USING     x_line_data TYPE ty_alv_0100
         ls_item_layout TYPE lvc_s_layi.
   ls_item_layout-t_image = '@3Y@'.
   ls_item_layout-style   = cl_gui_column_tree=>style_intensified.
-  ls_item_layout-fieldname = tree_0100->c_hierarchy_column_name.
+  ls_item_layout-fieldname = my_tree->c_hierarchy_column_name.
   APPEND ls_item_layout TO lt_item_layout.
 
 
@@ -585,7 +584,7 @@ FORM add_node_line  USING     x_line_data TYPE ty_alv_0100
   DATA: relat TYPE int4.
   relat = cl_gui_column_tree=>relat_last_child.
 
-  CALL METHOD tree_0100->add_node
+  CALL METHOD my_tree->add_node
     EXPORTING
       i_relat_node_key = x_relat_key
       i_relationship   = relat
@@ -615,7 +614,7 @@ FORM add_leaf_line  USING    x_line_data TYPE ty_alv_0100
 * set item-layout
   DATA: lt_item_layout TYPE lvc_t_layi,
         ls_item_layout TYPE lvc_s_layi.
-  ls_item_layout-fieldname = tree_0100->c_hierarchy_column_name.
+  ls_item_layout-fieldname = my_tree->c_hierarchy_column_name.
 *  ls_item_layout-class     = cl_gui_column_tree=>item_class_checkbox.
 *  ls_item_layout-editable  = 'X'.
   APPEND ls_item_layout TO lt_item_layout.
@@ -633,7 +632,7 @@ FORM add_leaf_line  USING    x_line_data TYPE ty_alv_0100
   ls_node-n_image   = space.
   ls_node-exp_image = space.
 
-  CALL METHOD tree_0100->add_node
+  CALL METHOD my_tree->add_node
     EXPORTING
       i_relat_node_key = x_relat_key
       i_relationship   = cl_gui_column_tree=>relat_last_child
@@ -656,7 +655,7 @@ ENDFORM.
 FORM change_toolbar .
 
 * get toolbar control
-  CALL METHOD tree_0100->get_toolbar_object
+  CALL METHOD my_tree->get_toolbar_object
     IMPORTING
       er_toolbar = mr_toolbar.
 
@@ -738,24 +737,22 @@ MODULE status_0200 OUTPUT.
   SET PF-STATUS 'ZPF_GENERIC'.
 * SET TITLEBAR 'xxx'.
 
-  DATA:
-    l_column    TYPE sy-tabix,
-    lp_struct   TYPE REF TO data,
-    lp_table    TYPE REF TO data,      " POINTER to dynamic table
-    ls_lvc_cat  TYPE lvc_s_fcat,
-    lt_lvc_cat  TYPE lvc_t_fcat,       " FIELD catalog
-    lt_fcat     TYPE slis_t_fieldcat_alv,  " FIELD catalog
-    ls_fieldcat TYPE slis_fieldcat_alv,
-    lt_fieldcat TYPE slis_t_fieldcat_alv,  " FIELD catalog
-    ls_layout   TYPE slis_layout_alv,
-    ls_layo     TYPE lvc_s_layo.
+  DATA: l_column    TYPE sy-tabix,
+        lp_struct   TYPE REF TO data,
+        lp_table    TYPE REF TO data,      " POINTER to dynamic table
+        ls_lvc_cat  TYPE lvc_s_fcat,
+        lt_lvc_cat  TYPE lvc_t_fcat,       " FIELD catalog
+        lt_fcat     TYPE slis_t_fieldcat_alv,  " FIELD catalog
+        ls_fieldcat TYPE slis_fieldcat_alv,
+        lt_fieldcat TYPE slis_t_fieldcat_alv,  " FIELD catalog
+        ls_layout   TYPE slis_layout_alv,
+        ls_layo     TYPE lvc_s_layo.
 
-  FIELD-SYMBOLS :
 
-    <header>       TYPE any,
-    <field_header> TYPE any,
-    <field_qmih>   TYPE any,
-    <lt_data>      TYPE table.         " data to display
+  FIELD-SYMBOLS : <header>       TYPE any,
+                  <field_header> TYPE any,
+                  <field_qmih>   TYPE any,
+                  <lt_data>      TYPE table.         " data to display
 
   FIELD-SYMBOLS: <fcat> LIKE LINE OF lt_fcat.
 
