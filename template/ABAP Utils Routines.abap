@@ -20,6 +20,7 @@ REPORT zag_utils.
 * - 15 - BUILD HEADER FROM DDIC
 * - 16 - DISPLAY GENERIC ALV IN POPUP
 * - 17 - SEND MAIL
+* - 18 - REMOVE SPECIAL CHARACTERS
 
 
 *&---------------------------------------------------------------------*
@@ -779,3 +780,39 @@ FORM send_mail .
       OTHERS                     = 8.
 
 ENDFORM.                    " SEND_MAIL
+*&---------------------------------------------------------------------*
+*& - 18 - REMOVE SPECIAL CHARACTERS
+*&---------------------------------------------------------------------*
+FORM remove_special_characters  CHANGING y_string TYPE text255.
+
+*  DATA lv_string TYPE text255.
+*  PERFORM remove_special_characters CHANGING lv_string.
+
+  CONSTANTS: c_regex_lect_upper TYPE c LENGTH 255 VALUE 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+             c_regex_lect_lower TYPE c LENGTH 255 VALUE 'abcdefghijklmnopqrstuvwxyz',
+             c_regex_digit      TYPE c LENGTH 255 VALUE '0123456789',
+             c_regex_symb       TYPE c LENGTH 255 VALUE '!"%/=?;,.:-_@&+*()[]{}<>',
+             c_regex_lect_acc   TYPE c LENGTH 255 VALUE 'èéàáòóùúÉÈÁÀÓÒÚÙ'.
+
+  DATA(lv_length) = strlen( y_string ).
+
+  DO lv_length TIMES.
+    DATA(lv_index) = sy-index - 1.
+
+    IF   y_string+lv_index(1) CA c_regex_lect_upper
+      OR y_string+lv_index(1) CA c_regex_lect_lower
+      OR y_string+lv_index(1) CA c_regex_digit
+      OR y_string+lv_index(1) CA c_regex_symb
+      OR y_string+lv_index(1) CA c_regex_lect_acc  .
+
+      CONTINUE.
+
+    ELSE.
+
+      y_string+lv_index(1) = ''.
+
+    ENDIF.
+
+  ENDDO.
+
+ENDFORM.
