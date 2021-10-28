@@ -787,7 +787,9 @@ FORM remove_special_characters  CHANGING y_string TYPE text255.
 
 *  DATA lv_string TYPE text255.
 *  PERFORM remove_special_characters CHANGING lv_string.
-
+  
+  "Example from FM ES_REMOVE_SPECIAL_CHARACTER
+  
   CONSTANTS: c_regex_lect_upper TYPE c LENGTH 255 VALUE 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
              c_regex_lect_lower TYPE c LENGTH 255 VALUE 'abcdefghijklmnopqrstuvwxyz',
              c_regex_digit      TYPE c LENGTH 255 VALUE '0123456789',
