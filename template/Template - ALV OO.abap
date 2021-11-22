@@ -438,6 +438,8 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
 *      <fcat>-scrtext_m = 'Stato' .
 *      <fcat>-scrtext_s = 'Stato' .
 *      <fcat>-key       = ' ' .
+*      <fcat>-outputlen = 4.
+*      <fcat>-just      = 'C'.
 
 *      UNASSIGN <fcat>.
 *      APPEND INITIAL LINE TO yt_fcat ASSIGNING <fcat>.
