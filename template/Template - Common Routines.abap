@@ -447,6 +447,153 @@ ENDFORM.                    " HELP_FILE_OUTPUT
 * - 10 - READ DATA FROM FILE
 *&---------------------------------------------------------------------*
 
+  DATA: gt_string TYPE TABLE OF string,
+        lv_file   TYPE string.
+
+  CONSTANTS: gc_sep VALUE ';',
+             c_structure_csv TYPE tabname    VALUE 'ZFRE0044_FILE_INPUT',
+             c_excel_sep     TYPE abap_char1 VALUE cl_abap_char_utilities=>horizontal_tab.
+
+  REFRESH gt_string[].
+  PERFORM upload_file USING lv_file.
+  
+  FORM upload_file  USING x_file TYPE string.
+    
+    IF x_file CS '.xlsx'.
+
+      PERFORM upload_excel TABLES gt_string
+                           USING x_file '.xlsx'.
+
+    ELSEIF x_file CS '.xls'.
+
+      PERFORM upload_excel TABLES gt_string
+                           USING x_file '.xls'.
+
+    ELSEIF x_file CS '.csv'.
+
+      CALL METHOD cl_gui_frontend_services=>gui_upload
+        EXPORTING
+          filename = x_file
+          filetype = 'ASC'
+        CHANGING
+          data_tab = gt_string[]
+        EXCEPTIONS
+          OTHERS   = 1.
+      IF sy-subrc <> 0.
+        MESSAGE s000(db) WITH text-e11 DISPLAY LIKE 'E'.
+        STOP.
+      ENDIF.
+
+    ENDIF.
+  ENDFORM.
+  
+  FORM upload_excel  TABLES yt_string_data
+                   USING  x_file   TYPE string
+                          x_format TYPE string.
+
+    DATA: lv_filename    TYPE rlgrap-filename,
+          lt_intern      TYPE TABLE OF alsmex_tabline,
+          lt_intern_indx TYPE TABLE OF alsmex_tabline,
+          ls_intern      LIKE LINE OF lt_intern,
+          lv_end_col     TYPE i,
+          lv_end_row     TYPE i,
+          lt_string_data TYPE TABLE OF string,
+          lv_tabix       TYPE n LENGTH 4,
+          lv_new_val     TYPE string.
+
+    DATA: lo_structdescr    TYPE REF TO cl_abap_structdescr.
+
+    FIELD-SYMBOLS: <intern>     LIKE LINE OF lt_intern,
+                   <intern_tmp> LIKE LINE OF lt_intern,
+                   <row_data>   LIKE LINE OF lt_string_data.
+
+    FIELD-SYMBOLS: <sap_line>   TYPE ANY,
+                   <component>  LIKE LINE OF lo_structdescr->components,
+                   <dyn_value>  TYPE ANY.
+
+  *--------------------------------------------------------------------*
+    lv_filename = x_file.
+
+    CASE x_format.
+      WHEN '.xlsx'.
+        lv_end_row = 1048576.
+        lv_end_col = 16834.
+
+      WHEN '.xls'.
+        lv_end_row = 65536.
+        lv_end_col = 256.
+
+      WHEN OTHERS.
+        EXIT.
+    ENDCASE.
+
+    CALL FUNCTION 'ALSM_EXCEL_TO_INTERNAL_TABLE'
+      EXPORTING
+        filename                = lv_filename
+        i_begin_col             = 1
+        i_begin_row             = 1
+        i_end_col               = lv_end_col
+        i_end_row               = lv_end_row
+      TABLES
+        intern                  = lt_intern
+      EXCEPTIONS
+        inconsistent_parameters = 1
+        upload_ole              = 2
+        OTHERS                  = 3.
+    IF sy-subrc NE 0.
+      MESSAGE s000(db) WITH text-e02 DISPLAY LIKE 'E'.
+      STOP.
+    ENDIF.
+
+
+    "Lettura della struttura del tracciato
+    lo_structdescr ?= cl_abap_typedescr=>describe_by_name( c_structure_csv ).
+    CHECK lo_structdescr IS NOT INITIAL.
+
+    SORT lt_intern BY row col.
+
+    lt_intern_indx[] = lt_intern[].
+    DELETE ADJACENT DUPLICATES FROM lt_intern_indx COMPARING row.
+
+    "Aggregazione delle celle dell excel per righe e colonne
+    CLEAR: yt_string_data[], lt_string_data[].
+    LOOP AT lt_intern_indx ASSIGNING <intern>.
+
+      UNASSIGN <row_data>.
+      APPEND INITIAL LINE TO lt_string_data ASSIGNING <row_data>.
+
+      LOOP AT lo_structdescr->components ASSIGNING <component>.
+        lv_tabix = sy-tabix.
+
+        UNASSIGN <intern_tmp>.
+        READ TABLE lt_intern ASSIGNING <intern_tmp>
+          WITH KEY row = <intern>-row
+                   col = lv_tabix
+                   BINARY SEARCH.
+        IF sy-subrc EQ 0.
+          lv_new_val = <intern_tmp>-value.
+
+        ELSE.
+          lv_new_val = '$'.
+
+        ENDIF.
+
+        IF <row_data> IS INITIAL.
+          <row_data> = lv_new_val.
+        ELSE.
+          CONCATENATE <row_data>
+                      lv_new_val
+                      INTO <row_data> SEPARATED BY ';'.
+        ENDIF.
+
+        REPLACE ALL OCCURRENCES OF '$' IN <row_data> WITH space.
+      ENDLOOP.
+
+    ENDLOOP.
+
+    yt_string_data[] = lt_string_data[].
+
+ENDFORM.                    " UPLOAD_EXCEL
 
 *&---------------------------------------------------------------------*
 * - 11 - WRITE DATA ON FILE
