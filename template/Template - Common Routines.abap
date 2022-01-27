@@ -881,8 +881,11 @@ FORM display_alv_popup  TABLES xt_alv TYPE STANDARD TABLE.
     CATCH cx_salv_msg.
   ENDTRY.
 
-  DATA: lr_functions TYPE REF TO cl_salv_functions_list.
+  DATA lr_columns TYPE REF TO cl_salv_columns_table.
+  lr_columns = go_alv->get_columns( ).
+  lr_columns->set_optimize( 'X' ). "--> Optimise all columns
 
+  DATA: lr_functions TYPE REF TO cl_salv_functions_list.
   lr_functions = go_alv->get_functions( ).
   lr_functions->set_all( 'X' ).
 
