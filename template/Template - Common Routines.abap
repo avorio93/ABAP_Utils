@@ -888,6 +888,10 @@ FORM display_alv_popup  TABLES xt_alv TYPE STANDARD TABLE.
   DATA: lr_functions TYPE REF TO cl_salv_functions_list.
   lr_functions = go_alv->get_functions( ).
   lr_functions->set_all( 'X' ).
+  
+  DATA: lr_display   TYPE REF TO cl_salv_display_settings.
+  lr_display = go_alv->get_display_settings( ).
+  lr_display->set_striped_pattern( cl_salv_display_settings=>true ).
 
   IF go_alv IS BOUND.
 
