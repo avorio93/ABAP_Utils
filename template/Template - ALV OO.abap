@@ -900,6 +900,26 @@ FORM handle_data_changed  CHANGING yr_data_changed  TYPE REF TO cl_alv_changed_d
   IF yr_data_changed->mt_inserted_rows[] IS NOT INITIAL.
     APPEND LINES OF yr_data_changed->mt_inserted_rows[] TO gt_inserted_data[].
   ENDIF.
+  
+  
+"CL_ALV_CHANGED_DATA_PROTOCOL
+"quando il valore non è corretto la cella ti diventa rossa, appare il messaggio di errore e ti rimette in automatico il vecchio valore
+*LOOP AT p_er_data_changed->mt_good_cells INTO ls_good.
+
+*CALL METHOD p_er_data_changed->add_protocol_entry
+*EXPORTING
+*i_msgid     = 'ZCRR'
+*i_msgno     = '021'
+*i_msgty     = 'E'
+*i_fieldname = ls_good-fieldname.
+
+*lv_err = 'X'.
+
+*ENDLOOP.
+
+*IF lv_err EQ 'X'.
+*  CALL METHOD p_er_data_changed->display_protocol.
+*ENDIF.
 
 ENDFORM.                    " HANDLE_DATA_CHANGED
 *&---------------------------------------------------------------------*
