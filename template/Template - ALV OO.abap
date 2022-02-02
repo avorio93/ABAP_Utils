@@ -450,6 +450,7 @@ FORM init_fieldcat USING    x_structure TYPE dd02l-tabname
 *      <fcat>-scrtext_m = 'Esito Elab.' .
 *      <fcat>-scrtext_s = 'Esito' .
 *      <fcat>-key       = ' ' .
+*      <fcat>-outputlen = 40.
 
     WHEN c_dynnr_0200.
 
