@@ -894,9 +894,7 @@ FORM display_alv_popup  TABLES xt_alv  TYPE STANDARD TABLE
   DATA: lr_display   TYPE REF TO cl_salv_display_settings.
   lr_display = go_alv->get_display_settings( ).
   lr_display->set_striped_pattern( cl_salv_display_settings=>true ).
-  IF x_title IS NOT INITIAL.
-    lr_display->set_list_header( x_title ).
-  ENDIF.
+  lr_display->set_list_header( x_title ).
 
   IF go_alv IS BOUND.
 
