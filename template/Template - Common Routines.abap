@@ -886,6 +886,13 @@ FORM display_alv_popup  TABLES xt_alv  TYPE STANDARD TABLE
   DATA lr_columns TYPE REF TO cl_salv_columns_table.
   lr_columns = go_alv->get_columns( ).
   lr_columns->set_optimize( 'X' ). "--> Optimise all columns
+  
+  DATA lr_column TYPE REF TO cl_salv_column_table.
+  TRY.
+      lr_column ?= lr_columns->get_column( 'MANDT' ).
+      lr_column->set_visible( value  = if_salv_c_bool_sap=>false ).
+    CATCH cx_salv_not_found.
+  ENDTRY.
 
   DATA: lr_functions TYPE REF TO cl_salv_functions_list.
   lr_functions = go_alv->get_functions( ).
