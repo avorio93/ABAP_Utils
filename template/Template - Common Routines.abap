@@ -206,28 +206,28 @@ FORM f4_my_field .
 *
 *  PERFORM f4_my_field.
 
-  DATA: lt_sflight      TYPE STANDARD TABLE OF sflight,
+  DATA: lt_datatab      TYPE STANDARD TABLE OF datatab,
         lt_return_tab   TYPE TABLE OF ddshretval.
 
-  FIELD-SYMBOLS: <sflight>   LIKE LINE OF lt_sflight,
-                 <return>  LIKE LINE OF lt_return_tab.
+  FIELD-SYMBOLS: <datatab>   LIKE LINE OF lt_datatab,
+                 <return>    LIKE LINE OF lt_return_tab.
 
-  REFRESH lt_sflight[].
+  REFRESH lt_datatab[].
   SELECT *
-    FROM sflight
-    INTO TABLE lt_sflight
-    WHERE carrid EQ p_carrid.
+    FROM datatab
+    INTO TABLE lt_datatab
+    WHERE myfield EQ p_carrid.
 
   CALL FUNCTION 'F4IF_INT_TABLE_VALUE_REQUEST'
     EXPORTING
-      retfield        = 'CARRID'
+      retfield        = 'MYFIELD'
       dynpprog        = sy-repid
       dynpnr          = sy-dynnr
-      dynprofield     = 'P_FLDATE' "Fill only if you want fill SEL SCREEN
+*      dynprofield     = 'P_FLDATE' "Fill only if you want fill SEL SCREEN
       value_org       = 'S'
     TABLES
       return_tab      = lt_return_tab
-      value_tab       = lt_sflight
+      value_tab       = lt_datatab
     EXCEPTIONS
       parameter_error = 1
       no_values_found = 2
