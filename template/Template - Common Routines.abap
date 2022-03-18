@@ -870,7 +870,7 @@ FORM display_alv_popup  TABLES xt_alv  TYPE STANDARD TABLE
                         USING  x_title TYPE lvc_title.
 
 *   PERFORM display_alv_popup TABLES gt_sflight
-                              USING  'My Title'.
+*                              USING  'My Title'.
 
   DATA go_alv TYPE REF TO cl_salv_table.
 
@@ -912,9 +912,9 @@ FORM display_alv_popup  TABLES xt_alv  TYPE STANDARD TABLE
       start_line  = 1
       end_line    = 15 ).
 
-    go_alv->display( ).
-
   ENDIF.
+  
+  go_alv->display( ).
 
 ENDFORM. "DISPLY_ALV_POPUP
 *&---------------------------------------------------------------------*
