@@ -21,6 +21,7 @@ INCLUDE zag_utils.
 * - 16 - DISPLAY GENERIC ALV IN POPUP
 * - 17 - SEND MAIL
 * - 18 - REMOVE SPECIAL CHARACTERS
+* - 19 - BUILD HEADER FROM ITAB
 
 
 *&---------------------------------------------------------------------*
@@ -1090,3 +1091,48 @@ FORM remove_special_characters  CHANGING y_string TYPE text255.
   ENDDO.
 
 ENDFORM.
+
+*&---------------------------------------------------------------------*
+*& - 19 - BUILD HEADER FROM ITAB
+*&---------------------------------------------------------------------*
+FORM get_header CHANGING y_header TYPE string.
+
+*  DATA: lv_header     TYPE string,
+*  PERFORM get_header CHANGING lv_header.
+
+  DATA: table TYPE REF TO data.
+
+  y_header = ''.
+
+  CREATE DATA table LIKE yourtab.
+  ASSIGN table->* TO FIELD-SYMBOL(<table>).
+  TRY.
+      cl_salv_table=>factory( IMPORTING
+                                r_salv_table   = DATA(salv_table)
+                              CHANGING
+                                t_table        = <table>  ).
+      DATA(lt_fcat) = cl_salv_controller_metadata=>get_lvc_fieldcatalog(
+          r_columns      = salv_table->get_columns( ) " ALV Filter
+          r_aggregations = salv_table->get_aggregations( ) " ALV Aggregations
+  ).
+    CATCH cx_root.
+  ENDTRY.
+
+
+  LOOP AT lt_fcat ASSIGNING FIELD-SYMBOL(<fcat>).
+
+    IF y_header IS INITIAL.
+      y_header = <fcat>-seltext.
+
+    ELSE.
+      CONCATENATE y_header
+                  <fcat>-seltext
+             INTO y_header
+             SEPARATED BY ';'.
+
+    ENDIF.
+
+  ENDLOOP.
+
+ENDFORM.
+
