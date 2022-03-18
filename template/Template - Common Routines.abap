@@ -1122,11 +1122,11 @@ FORM get_header CHANGING y_header TYPE string.
   LOOP AT lt_fcat ASSIGNING FIELD-SYMBOL(<fcat>).
 
     IF y_header IS INITIAL.
-      y_header = <fcat>-seltext.
+      y_header = <fcat>-reptext.
 
     ELSE.
       CONCATENATE y_header
-                  <fcat>-seltext
+                  <fcat>-reptext
              INTO y_header
              SEPARATED BY ';'.
 
