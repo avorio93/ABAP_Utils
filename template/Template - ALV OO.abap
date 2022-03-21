@@ -821,21 +821,21 @@ FORM handle_toolbar  CHANGING y_object      TYPE REF TO cl_alv_event_toolbar_set
       lw_toolbar-quickinfo = 'Function'.
       APPEND lw_toolbar TO y_object->mt_toolbar.
 
-      CLEAR lw_toolbar.
-      lw_toolbar-function  = '&SAVE_0100'.
-      lw_toolbar-icon      = c_icon_save.
-      lw_toolbar-butn_type = '0'.
-      lw_toolbar-text      = 'Save Data'.
-      lw_toolbar-quickinfo = 'Save Data'.
-      APPEND lw_toolbar TO y_object->mt_toolbar.
+*      CLEAR lw_toolbar.
+*      lw_toolbar-function  = '&SAVE_0100'.
+*      lw_toolbar-icon      = c_icon_save.
+*      lw_toolbar-butn_type = '0'.
+*      lw_toolbar-text      = 'Save Data'.
+*      lw_toolbar-quickinfo = 'Save Data'.
+*      APPEND lw_toolbar TO y_object->mt_toolbar.
 
-      CLEAR lw_toolbar.
-      lw_toolbar-function  = '&SCREEN_0200'.
-      lw_toolbar-icon      = c_icon_exec.
-      lw_toolbar-butn_type = '0'.
-      lw_toolbar-text      = 'Screen 0200'.
-      lw_toolbar-quickinfo = 'Screen 0200'.
-      APPEND lw_toolbar TO y_object->mt_toolbar.
+*      CLEAR lw_toolbar.
+*      lw_toolbar-function  = '&SCREEN_0200'.
+*      lw_toolbar-icon      = c_icon_exec.
+*      lw_toolbar-butn_type = '0'.
+*      lw_toolbar-text      = 'Screen 0200'.
+*      lw_toolbar-quickinfo = 'Screen 0200'.
+*      APPEND lw_toolbar TO y_object->mt_toolbar.
 
     WHEN c_dynnr_0200.
 
