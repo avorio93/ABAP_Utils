@@ -745,49 +745,49 @@ ENDFORM.          " CHECK_DYN_STRUCTURE
 *&---------------------------------------------------------------------*
 * - 13 - CONVERT DATA TO INTERNAL
 *&---------------------------------------------------------------------*
-FORM convert_data_to_internal USING    value(x_ext_data)
-                              CHANGING y_int_data TYPE dats.
+FORM convert_data_to_internal USING    value(x_data_ext)
+                              CHANGING y_data_int TYPE dats.
 
-*  DATA: lv_int_data TYPE dats,
-*        lv_ext_data TYPE string.
+*  DATA: lv_data_int TYPE dats,
+*        lv_data_ext TYPE string.
 
-*  PERFORM convert_data_to_internal USING    lv_ext_data
-*                                   CHANGING lv_int_data.
+*  PERFORM convert_data_to_internal USING    lv_data_ext
+*                                   CHANGING lv_data_int.
 
-  CHECK strlen( x_ext_data ) EQ 10.
+  CHECK strlen( x_data_ext ) EQ 10.
 
-  CONCATENATE x_ext_data+6(4)
-        x_ext_data+3(2)
-        x_ext_data(2)
-        INTO y_int_data.
+  CONCATENATE x_data_ext+6(4)
+              x_data_ext+3(2)
+              x_data_ext(2)
+         INTO y_data_int.
 
 
 ENDFORM.          " CONVERT_DATA_TO_INTERNAL
 *&---------------------------------------------------------------------*
 * - 14 - CONVERT DATA TO EXTERNAL
 *&---------------------------------------------------------------------*
-FORM convert_data_to_external USING    x_int_data    TYPE dats
+FORM convert_data_to_external USING    x_data_int    TYPE dats
                                        x_separator
-                              CHANGING value(y_ext_data).
+                              CHANGING value(y_data_ext).
 
-*  DATA: lv_int_data TYPE dats,
-*        lv_ext_data TYPE string,
+*  DATA: lv_data_int TYPE dats,
+*        lv_data_ext TYPE string,
 *        lv_separator.
 *
 *  lv_separator = '/'.
-*  PERFORM convert_data_to_external USING    lv_int_data
+*  PERFORM convert_data_to_external USING    lv_data_int
 *                                            lv_separator
-*                                   CHANGING lv_ext_data.
+*                                   CHANGING lv_data_ext.
 
-  CHECK x_int_data NE '00000000'.
+  CHECK x_data_int NE '00000000'.
 
-  CONCATENATE x_int_data+6(2)
-        x_int_data+4(2)
-        x_int_data(4)
-        INTO y_ext_data
-        SEPARATED BY x_separator.
+  CONCATENATE x_data_int+6(2)
+              x_data_int+4(2)
+              x_data_int(4)
+              INTO y_data_ext
+              SEPARATED BY x_separator.
 
-  CONDENSE y_ext_data NO-GAPS.
+  CONDENSE y_data_ext NO-GAPS.
 
 
 ENDFORM.          " CONVERT_DATA_TO_EXTERNAL
