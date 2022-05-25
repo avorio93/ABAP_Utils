@@ -22,6 +22,7 @@ INCLUDE zag_utils.
 * - 17 - SEND MAIL
 * - 18 - REMOVE SPECIAL CHARACTERS
 * - 19 - BUILD HEADER FROM ITAB
+* - 20 - GET DESKTOP DIRECTORY
 
 
 *&---------------------------------------------------------------------*
@@ -1135,4 +1136,26 @@ FORM get_header CHANGING y_header TYPE string.
   ENDLOOP.
 
 ENDFORM.
+
+*&---------------------------------------------------------------------*
+*& - 20 - GET DESKTOP DIRECTORY
+*&---------------------------------------------------------------------*
+FORM get_desktop_directory  CHANGING y_desktop_directory TYPE string.
+
+*  DATA: lv_desktop_directory TYPE string.
+*  PERFORM get_desktop_directory CHANGING lv_desktop_directory.
+
+  y_desktop_directory = ''.
+  CALL METHOD cl_gui_frontend_services=>get_desktop_directory
+    CHANGING
+      desktop_directory = y_desktop_directory
+    EXCEPTIONS
+      cntl_error        = 1.
+  IF sy-subrc <> 0.
+    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+               WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+  ENDIF.
+  CALL METHOD cl_gui_cfw=>update_view.
+
+ENDFORM.                    " GET_DESKTOP_DIRECTORY
 
