@@ -82,7 +82,7 @@ FORM get_file_in_zip  USING    x_filename     TYPE string
                       CHANGING y_subrc        TYPE sy-subrc
                                y_xstr_file    TYPE xstring.
 
-  CLEAR y_xstr_file.
+  CLEAR: y_xstr_file, y_subrc.
 
   CHECK xo_zip IS NOT INITIAL.
   CALL METHOD xo_zip->get
