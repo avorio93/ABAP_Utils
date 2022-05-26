@@ -162,59 +162,55 @@ FORM save_local_zip .
 
 *--------------------------------------------------------------------*
 
-  PERFORM convert_to_xstring USING    'Testo di prova'
-                             CHANGING lv_xstr_content.
-
-
   PERFORM get_file_in_zip USING    'file 1.txt' go_zip
                           CHANGING lv_subrc lv_xstr_file.
 
 
   IF lv_xstr_file IS INITIAL.
 
-    PERFORM add_file_to_zip USING    'file 1.txt' lv_xstr_content
-                            CHANGING go_zip.
+    PERFORM convert_to_xstring USING    'Testo di prova'
+                               CHANGING lv_xstr_content.
+
+    PERFORM add_file_to_zip    USING    'file 1.txt' lv_xstr_content
+                               CHANGING go_zip.
+
+    lv_xstr_zip = go_zip->save( ).
 
   ENDIF.
 
-  lv_xstr_zip = go_zip->save( ).
-
-
 *--------------------------------------------------------------------*
-
-
-  PERFORM convert_to_xstring USING    'Testo di prova 2'
-                             CHANGING lv_xstr_content.
 
   PERFORM get_file_in_zip USING    'file 1.txt' go_zip
                           CHANGING lv_subrc lv_xstr_file.
 
   IF lv_xstr_file IS INITIAL.
 
-    PERFORM add_file_to_zip USING    'file 1.txt' lv_xstr_content
-                            CHANGING go_zip.
+    PERFORM convert_to_xstring USING    'Testo di prova 2'
+                               CHANGING lv_xstr_content.
+
+    PERFORM add_file_to_zip    USING    'file 1.txt' lv_xstr_content
+                               CHANGING go_zip.
+
+    lv_xstr_zip = go_zip->save( ).
 
   ENDIF.
 
-  lv_xstr_zip = go_zip->save( ).
-
 *--------------------------------------------------------------------*
-
-
-  PERFORM convert_to_xstring USING    'Testo di prova 2'
-                             CHANGING lv_xstr_content.
 
   PERFORM get_file_in_zip USING    'file 2.txt' go_zip
                           CHANGING lv_subrc lv_xstr_file.
 
   IF lv_xstr_file IS INITIAL.
 
-    PERFORM add_file_to_zip USING    'file 2.txt' lv_xstr_content
-                            CHANGING go_zip.
+    PERFORM convert_to_xstring USING    'Testo di prova 2'
+                               CHANGING lv_xstr_content.
+
+    PERFORM add_file_to_zip    USING    'file 2.txt' lv_xstr_content
+                               CHANGING go_zip.
+
+    lv_xstr_zip = go_zip->save( ).
 
   ENDIF.
-
-  lv_xstr_zip = go_zip->save( ).
 
 *--------------------------------------------------------------------*
 
@@ -273,39 +269,37 @@ FORM save_server_zip .
 
 *--------------------------------------------------------------------*
 
-  PERFORM convert_to_xstring USING    'Testo di prova'
-                             CHANGING lv_xstr_content.
-
-
   PERFORM get_file_in_zip USING    'file 1.txt' go_zip
                           CHANGING lv_subrc lv_xstr_file.
 
-
   IF lv_xstr_file IS INITIAL.
 
-    PERFORM add_file_to_zip USING    'file 1.txt' lv_xstr_content
-                            CHANGING go_zip.
+    PERFORM convert_to_xstring USING    'Testo di prova'
+                               CHANGING lv_xstr_content.
+
+    PERFORM add_file_to_zip    USING    'file 1.txt' lv_xstr_content
+                               CHANGING go_zip.
+
+    lv_xstr_zip = go_zip->save( ).
 
   ENDIF.
 
-  lv_xstr_zip = go_zip->save( ).
-
 *--------------------------------------------------------------------*
-
-  PERFORM convert_to_xstring USING    'Testo di prova 2'
-                             CHANGING lv_xstr_content.
 
   PERFORM get_file_in_zip USING    'file 2.txt' go_zip
                           CHANGING lv_subrc lv_xstr_file.
 
   IF lv_xstr_file IS INITIAL.
 
-    PERFORM add_file_to_zip USING    'file 2.txt' lv_xstr_content
-                            CHANGING go_zip.
+    PERFORM convert_to_xstring USING    'Testo di prova 2'
+                               CHANGING lv_xstr_content.
+
+    PERFORM add_file_to_zip    USING    'file 2.txt' lv_xstr_content
+                               CHANGING go_zip.
+
+    lv_xstr_zip = go_zip->save( ).
 
   ENDIF.
-
-  lv_xstr_zip = go_zip->save( ).
 
 *--------------------------------------------------------------------*
 
