@@ -63,7 +63,8 @@ ENDFORM.                    " GET_DESKTOP_DIRECTORY
 *&---------------------------------------------------------------------*
 FORM convert_to_xstring  USING    x_text      TYPE string
                          CHANGING y_xstr_text TYPE xstring.
-
+  
+  CLEAR y_xstr_text.
   CALL FUNCTION 'SCMS_STRING_TO_XSTRING'
     EXPORTING
       text   = x_text
@@ -105,7 +106,7 @@ FORM add_file_to_zip  USING    x_filename     TYPE string
                                x_xstr_content TYPE xstring
                       CHANGING yo_zip         TYPE REF TO cl_abap_zip.
 
-
+  CHECK yo_zip IS NOT INITIAL.
   yo_zip->add( name    = x_filename
                content = x_xstr_content ).
 
