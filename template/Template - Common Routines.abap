@@ -1248,7 +1248,7 @@ FORM get_transposed_table  TABLES   xt_table
 
   CALL METHOD cl_alv_table_create=>create_dynamic_table
     EXPORTING
-      it_fieldcatalog = lt_lvc_cat
+      it_fieldcatalog = lt_fcat
     IMPORTING
       ep_table        = yp_transp.
 
