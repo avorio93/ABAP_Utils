@@ -1227,6 +1227,8 @@ FORM get_transposed_table  TABLES   xt_table
   READ TABLE xt_table ASSIGNING FIELD-SYMBOL(<original_row>) INDEX 1.
 
   LOOP AT lt_column_ref ASSIGNING FIELD-SYMBOL(<column_ref>).
+  
+    CHECK <column_ref>-columnname NE 'MANDT'.
 
     ASSIGN COMPONENT <column_ref>-columnname OF STRUCTURE <original_row> TO FIELD-SYMBOL(<value>).
     CHECK sy-subrc EQ 0.
