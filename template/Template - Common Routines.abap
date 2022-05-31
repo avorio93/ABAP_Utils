@@ -23,6 +23,7 @@ INCLUDE zag_utils.
 * - 18 - REMOVE SPECIAL CHARACTERS
 * - 19 - BUILD HEADER FROM ITAB
 * - 20 - GET DESKTOP DIRECTORY
+* - 21 - GET TRANSPOSED TABLE
 
 
 *&---------------------------------------------------------------------*
@@ -1158,4 +1159,102 @@ FORM get_desktop_directory  CHANGING y_desktop_directory TYPE string.
   CALL METHOD cl_gui_cfw=>update_view.
 
 ENDFORM.                    " GET_DESKTOP_DIRECTORY
+
+*&---------------------------------------------------------------------*
+*& - 21 - GET TRANSPOSED TABLE
+*&---------------------------------------------------------------------*
+FORM get_transposed_table  TABLES   xt_table
+                           CHANGING yp_transp      TYPE REF TO data
+                                    yt_fcat_transp TYPE lvc_t_fcat.
+
+  CLEAR: yp_transp, yt_fcat_transp[].
+
+  CHECK lines( xt_table ) EQ 1.
+
+  "------------------------------------------------
+  "-> Creazione tabella DESCR_CAMPO + VALORE
+  "-> con relativo riferimento <fs>
+
+  DATA: lt_fcat   TYPE lvc_t_fcat,
+        lp_transp TYPE REF TO data.
+
+  FIELD-SYMBOLS: <fcat>           TYPE lvc_s_fcat,
+                 <lt_transp_data> TYPE table.
+
+
+  APPEND INITIAL LINE TO lt_fcat ASSIGNING <fcat>.
+  <fcat>-fieldname  = 'COLUMNTEXT'.
+  <fcat>-ref_table  = 'LVC_S_DETA'.
+
+  APPEND INITIAL LINE TO lt_fcat ASSIGNING <fcat>.
+  <fcat>-fieldname  = 'VALUE'.
+  <fcat>-ref_field  = 'VALUE'.
+  <fcat>-ref_table  = 'LVC_S_DETA'.
+
+  CALL METHOD cl_alv_table_create=>create_dynamic_table
+    EXPORTING
+      it_fieldcatalog = lt_fcat
+    IMPORTING
+      ep_table        = lp_transp.
+
+  ASSIGN lp_transp->* TO <lt_transp_data>.
+
+
+  "------------------------------------------------
+  "-> Estrazione lista campi tabella originale
+
+  DATA: lo_alv        TYPE REF TO cl_salv_table,
+        lr_columns    TYPE REF TO cl_salv_columns_table,
+        lt_column_ref TYPE salv_t_column_ref.
+
+  TRY.
+      cl_salv_table=>factory(
+        IMPORTING
+          r_salv_table = lo_alv
+        CHANGING
+          t_table      = xt_table[] ).
+
+    CATCH cx_salv_msg.
+  ENDTRY.
+
+  lr_columns    = lo_alv->get_columns( ).
+  lt_column_ref = lr_columns->get( ).
+
+
+  "------------------------------------------------
+  "-> Trasposizione campi da NxM a MxN
+
+  READ TABLE xt_table ASSIGNING FIELD-SYMBOL(<original_row>) INDEX 1.
+
+  LOOP AT lt_column_ref ASSIGNING FIELD-SYMBOL(<column_ref>).
+
+    ASSIGN COMPONENT <column_ref>-columnname OF STRUCTURE <original_row> TO FIELD-SYMBOL(<value>).
+    CHECK sy-subrc EQ 0.
+
+    APPEND INITIAL LINE TO <lt_transp_data> ASSIGNING FIELD-SYMBOL(<transp_row>).
+
+    ASSIGN COMPONENT 'COLUMNTEXT' OF STRUCTURE <transp_row> TO FIELD-SYMBOL(<transp_txt>).
+    ASSIGN COMPONENT 'VALUE'      OF STRUCTURE <transp_row> TO FIELD-SYMBOL(<transp_value>).
+
+    <transp_txt>   = <column_ref>-r_column->get_long_text( ).
+    <transp_value> = <value>.
+
+  ENDLOOP.
+
+  "------------------------------------------------
+  "-> Esportazione tabella esportata
+
+  FIELD-SYMBOLS: <yt_data_export> TYPE table.
+
+  CALL METHOD cl_alv_table_create=>create_dynamic_table
+    EXPORTING
+      it_fieldcatalog = lt_lvc_cat
+    IMPORTING
+      ep_table        = yp_transp.
+
+  ASSIGN yp_transp->* TO <yt_data_export>.
+  <yt_data_export> = <lt_transp_data>.
+
+
+ENDFORM.
 
