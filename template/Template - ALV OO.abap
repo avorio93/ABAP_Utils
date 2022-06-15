@@ -46,6 +46,9 @@ REPORT zag_simple_alv.
 
 *) "TEMPLATE-CELL_COLOR
 "   Adapt the routine for color single cells
+
+*) "TEMPLATE-TOOLBAR_EXCLUDING
+"   Adapt the routine if you need to exclude some buttons
 *--------------------------------------------------------------------*
 
 **********************************************************************
@@ -290,30 +293,32 @@ FORM print_alv USING    x_cont_name      TYPE scrfname
                         yo_alv_ref       TYPE ty_ref_alv
                         yo_doc_container TYPE ty_ref_doc_container.
 
-  DATA: lt_fcat      TYPE lvc_t_fcat,
-        ls_layout    TYPE lvc_s_layo,
-        lt_sort      TYPE lvc_t_sort,
-        ls_variant   TYPE disvariant,
-        ls_print     TYPE lvc_s_prnt.
+  DATA: lt_fcat              TYPE lvc_t_fcat,
+        ls_layout            TYPE lvc_s_layo,
+        lt_sort              TYPE lvc_t_sort,
+        ls_variant           TYPE disvariant,
+        ls_print             TYPE lvc_s_prnt,
+        lt_toolbar_excluding TYPE ui_functions.
 
   FIELD-SYMBOLS: <stacktrace> LIKE LINE OF gt_stacktrace_dynnr.
 
 *--------------------------------------------------------------------*
 
-  PERFORM init_container    USING    x_cont_name
-                            CHANGING yo_container
-                                     yo_alv_ref
-                                     yo_doc_container.
+  PERFORM init_container           USING    x_cont_name
+                                   CHANGING yo_container
+                                            yo_alv_ref
+                                            yo_doc_container.
 
-  PERFORM init_fieldcat     USING    x_structure
-                            CHANGING lt_fcat[].
+  PERFORM init_fieldcat            USING    x_structure
+                                   CHANGING lt_fcat[].
 
-  PERFORM init_layout       USING    xt_table
-                            CHANGING ls_layout.
+  PERFORM init_layout              USING    xt_table
+                                   CHANGING ls_layout.
 
-  PERFORM init_sort         CHANGING lt_sort[].
-  PERFORM init_variant      CHANGING ls_variant.
-  PERFORM init_print_params CHANGING ls_print.
+  PERFORM init_sort                CHANGING lt_sort[].
+  PERFORM init_variant             CHANGING ls_variant.
+  PERFORM init_print_params        CHANGING ls_print.
+  PERFORM init_toolbar_excluding   CHANGING lt_toolbar_excluding.
 
   UNASSIGN <stacktrace>.
   READ TABLE gt_stacktrace_dynnr ASSIGNING <stacktrace>
@@ -331,6 +336,7 @@ FORM print_alv USING    x_cont_name      TYPE scrfname
       is_layout                     = ls_layout
       is_variant                    = ls_variant
       is_print                      = ls_print
+      it_toolbar_excluding          = lt_toolbar_excluding
     CHANGING
       it_outtab                     = xt_table[] "<dyn_table>
       it_fieldcatalog               = lt_fcat[]
@@ -592,6 +598,84 @@ FORM init_print_params CHANGING y_print TYPE lvc_s_prnt.
   ENDCASE.
 
 ENDFORM.                    " INIT_PRINT_PARAMS
+*&---------------------------------------------------------------------*
+*& Form INIT_TOOLBAR_EXCLUDING
+*&---------------------------------------------------------------------*
+FORM init_toolbar_excluding  USING yt_toolbar_excluding TYPE ui_functions.
+
+  DATA ls_exclude TYPE ui_func.
+
+  CLEAR yt_toolbar_excluding[].
+
+  CASE sy-dynnr.
+    WHEN c_dynnr_0100.
+
+    WHEN c_dynnr_0200.
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_insert_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_delete_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_paste.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_paste_new_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_cut.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_append_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_undo.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+    WHEN c_dynnr_0300.
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_insert_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_delete_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_paste.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_paste_new_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_cut.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_append_row.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_undo.
+      APPEND ls_exclude TO yt_toolbar_excluding.
+
+    WHEN OTHERS.
+  ENDCASE.
+
+ENDFORM.
 *&---------------------------------------------------------------------*
 *&      Form  INIT_HANDLERS
 *&---------------------------------------------------------------------*
