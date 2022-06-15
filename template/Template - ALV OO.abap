@@ -610,7 +610,6 @@ FORM init_toolbar_excluding  USING yt_toolbar_excluding TYPE ui_functions.
   CASE sy-dynnr.
     WHEN c_dynnr_0100.
 
-    WHEN c_dynnr_0200.
       ls_exclude = cl_gui_alv_grid=>mc_fc_loc_insert_row.
       APPEND ls_exclude TO yt_toolbar_excluding.
 
@@ -640,37 +639,10 @@ FORM init_toolbar_excluding  USING yt_toolbar_excluding TYPE ui_functions.
 
       ls_exclude = cl_gui_alv_grid=>mc_fc_loc_undo.
       APPEND ls_exclude TO yt_toolbar_excluding.
+
+    WHEN c_dynnr_0200.
 
     WHEN c_dynnr_0300.
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_insert_row.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_delete_row.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy_row.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_paste.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_paste_new_row.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_cut.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_copy_row.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_append_row.
-      APPEND ls_exclude TO yt_toolbar_excluding.
-
-      ls_exclude = cl_gui_alv_grid=>mc_fc_loc_undo.
-      APPEND ls_exclude TO yt_toolbar_excluding.
 
     WHEN OTHERS.
   ENDCASE.
