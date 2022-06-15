@@ -602,7 +602,9 @@ ENDFORM.                    " INIT_PRINT_PARAMS
 *& Form INIT_TOOLBAR_EXCLUDING
 *&---------------------------------------------------------------------*
 FORM init_toolbar_excluding  USING yt_toolbar_excluding TYPE ui_functions.
-
+  
+  "TEMPLATE-TOOLBAR_EXCLUDING
+  
   DATA ls_exclude TYPE ui_func.
 
   CLEAR yt_toolbar_excluding[].
