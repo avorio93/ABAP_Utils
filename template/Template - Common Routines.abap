@@ -24,6 +24,7 @@ INCLUDE zag_utils.
 * - 19 - BUILD HEADER FROM ITAB
 * - 20 - GET DESKTOP DIRECTORY
 * - 21 - GET TRANSPOSED TABLE
+* - 22 - SEND MAIL BCS
 
 
 *&---------------------------------------------------------------------*
@@ -1259,4 +1260,253 @@ FORM get_transposed_table  TABLES   xt_table
 
 
 ENDFORM.
+*&---------------------------------------------------------------------*
+*& - 22 - SEND MAIL BCS
+*&---------------------------------------------------------------------*
+FORM send_mail_bcs .
 
+*  PERFORM send_mail_bcs.
+
+  DATA: lr_bcs_exception TYPE REF TO cx_bcs.
+
+  "-------------------------------------------------
+
+  TRY.
+      TRY.
+          "-------------------------------------------------
+          "Create send request
+          DATA: lo_send_request TYPE REF TO cl_bcs,
+                lo_document     TYPE REF TO cl_document_bcs,
+
+                try.
+          lo_send_request = cl_bcs=>create_persistent( ).
+        CATCH cx_send_req_bcs.
+      ENDTRY.
+
+
+      "-------------------------------------------------
+      "TEMPLATE - Email FROM...
+
+      PERFORM fill_sender CHANGING lo_send_request.
+
+
+      "-------------------------------------------------
+      "TEMPLATE - Email TO...
+
+      PERFORM fill_recipient CHANGING lo_send_request.
+
+
+      "-------------------------------------------------
+      "TEMPLATE - Email BODY
+
+      PERFORM fill_body CHANGING lo_send_request
+                                 lo_document.
+
+
+      "-------------------------------------------------
+      "TEMPLATE - Adding Attachment
+
+      PERFORM fill_attachment CHANGING lo_send_request
+                                       lo_document.
+
+
+      "-------------------------------------------------
+      "Add document to send request
+      TRY.
+          lo_send_request->set_document( lo_document ).
+        CATCH cx_send_req_bcs.
+      ENDTRY.
+
+
+      "-------------------------------------------------
+      "Send email
+      DATA: lv_sent_to_all   TYPE os_boolean.
+
+      lv_sent_to_all = lo_send_request->send( i_with_error_screen = 'X' ).
+      IF lv_sent_to_all = 'X'.
+        MESSAGE s646(db) WITH 'Email Sent' TEXT-s01.
+      ENDIF.
+      COMMIT WORK.
+
+
+      "Exception handling
+    CATCH cx_bcs INTO lr_bcs_exception.
+      WRITE:
+        'Error!',
+        'Error type:',
+        lr_bcs_exception->error_type.
+
+  ENDTRY.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form FILL_CSV
+*&---------------------------------------------------------------------*
+FORM fill_csv  TABLES   yt_soli_tab      STRUCTURE soli
+               CHANGING y_attch_subuject TYPE sood-objdes.
+
+  DATA: lt_csv_string TYPE TABLE OF string,
+        lv_string     TYPE string VALUE 'Column1;column2;column3',
+        lv_csv_string TYPE string.
+
+  FIELD-SYMBOLS: <line> TYPE soli.
+
+  "-------------------------------------------------
+
+  "Pre load dummy csv table
+  DO 5 TIMES.
+    APPEND lv_string TO lt_csv_string.
+  ENDDO.
+
+  CLEAR lv_string. CLEAR lv_csv_string.
+  LOOP AT lt_csv_string INTO lv_string.
+    IF lv_csv_string IS INITIAL.
+      lv_csv_string = lv_string.
+    ELSE.
+      CONCATENATE lv_csv_string lv_string
+        INTO lv_csv_string SEPARATED BY cl_abap_char_utilities=>cr_lf.
+    ENDIF.
+    CLEAR lv_string.
+  ENDLOOP.
+
+  yt_soli_tab[] = cl_bcs_convert=>string_to_soli( iv_string = lv_csv_string ).
+
+  y_attch_subuject = 'attachment_name.csv'.
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form FILL_SENDER
+*&---------------------------------------------------------------------*
+FORM fill_sender CHANGING yo_send_request TYPE REF TO cl_bcs.
+
+  DATA: lo_sender TYPE REF TO cl_sapuser_bcs,
+        lv_sender TYPE sy-uname.
+
+  "-------------------------------------------------
+
+  lv_sender = sy-uname.
+
+  CLEAR lo_sender.
+  lo_sender = cl_sapuser_bcs=>create( lv_sender ).
+
+  TRY.
+      yo_send_request->set_sender( i_sender = lo_sender ).
+    CATCH cx_address_bcs.
+  ENDTRY.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form FILL_RECIPIENT
+*&---------------------------------------------------------------------*
+FORM fill_recipient  CHANGING yo_send_request TYPE REF TO cl_bcs.
+
+  DATA: lo_recipient TYPE REF TO if_recipient_bcs,
+        lv_email     TYPE adr6-smtp_addr.
+
+  "-------------------------------------------------
+
+  lv_email     = 'antonio.garofalo@finconsgroup.com'.
+
+  CLEAR lo_recipient.
+  lo_recipient = cl_cam_address_bcs=>create_internet_address( lv_email ).
+  TRY.
+      yo_send_request->add_recipient( i_recipient = lo_recipient
+                                      i_express   = 'X' ).
+    CATCH cx_send_req_bcs.
+  ENDTRY.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form FILL_BODY
+*&---------------------------------------------------------------------*
+FORM fill_body  CHANGING  yo_send_request TYPE REF TO cl_bcs
+                          yo_document     TYPE REF TO cl_document_bcs.
+
+  CONSTANTS: c_mail_type_raw TYPE char03     VALUE 'RAW',
+             c_mail_type_htm TYPE char03     VALUE 'HTM'.
+
+  DATA: lv_subject TYPE so_obj_des,
+        lv_text    TYPE bcsy_text.
+
+  "-------------------------------------------------
+
+  DATA: std_text_name TYPE thead-tdname VALUE 'ZYOUR_STD_TEXT',
+        lines         TYPE TABLE OF tline.
+
+  CLEAR: lines[].
+  CALL FUNCTION 'READ_TEXT'
+    EXPORTING
+      id                      = 'ST'
+      language                = sy-langu
+      name                    = std_text_name
+      object                  = 'TEXT'
+    TABLES
+      lines                   = lines
+    EXCEPTIONS
+      id                      = 1
+      language                = 2
+      name                    = 3
+      not_found               = 4
+      object                  = 5
+      reference_check         = 6
+      wrong_access_to_archive = 7
+      OTHERS                  = 8.
+  IF sy-subrc EQ 0.
+
+    DATA lv_lines TYPE i.
+    lv_lines = lines( lines[] ) .
+
+    FIELD-SYMBOLS: <lines> LIKE LINE OF lines.
+    LOOP AT lines ASSIGNING <lines>.
+
+      "TODO adapt
+      IF <lines>-tdline CS '&your_variable&'.
+        REPLACE '&your_variable&' IN <lines>-tdline WITH ''.
+      ENDIF.
+
+      APPEND <lines>-tdline TO lv_text.
+    ENDLOOP.
+
+  ELSE.
+    APPEND 'Hello world! My first ABAP email!' TO lv_text.
+  ENDIF.
+
+  lv_subject = 'ABAP Email with CL_BCS'.
+
+  TRY.
+      yo_document = cl_document_bcs=>create_document( i_type    = c_mail_type_raw
+                                                      i_text    = lv_text
+                                                      i_subject = lv_subject ).
+    CATCH cx_document_bcs.
+  ENDTRY.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form FILL_ATTACHMENT
+*&---------------------------------------------------------------------*
+FORM fill_attachment  CHANGING yo_send_request TYPE REF TO cl_bcs
+                               yo_document     TYPE REF TO cl_document_bcs.
+
+  CONSTANTS: c_attch_csv TYPE soodk-objtp VALUE 'CSV',
+             c_attch_raw TYPE soodk-objtp VALUE 'RAW'.
+
+  DATA: lt_soli_tab      TYPE soli_tab,
+        lv_attch_subject TYPE sood-objdes.
+
+  "-------------------------------------------------
+
+  PERFORM fill_csv TABLES   lt_soli_tab
+                   CHANGING lv_attch_subject.
+
+
+  TRY.
+      CALL METHOD yo_document->add_attachment
+        EXPORTING
+          i_attachment_type    = 'CSV'   "For CSV file Extension
+          i_attachment_subject = lv_attch_subject
+          i_att_content_text   = lt_soli_tab[].
+    CATCH cx_document_bcs.
+  ENDTRY.
+
+ENDFORM.
