@@ -1510,3 +1510,39 @@ FORM fill_attachment  CHANGING yo_send_request TYPE REF TO cl_bcs
   ENDTRY.
 
 ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form FILL_CSV
+*&---------------------------------------------------------------------*
+FORM fill_csv  TABLES   yt_soli_tab      STRUCTURE soli
+               CHANGING y_attch_subuject TYPE sood-objdes.
+
+  DATA: lt_csv_string TYPE TABLE OF string,
+        lv_string     TYPE string VALUE 'Column1;column2;column3',
+        lv_csv_string TYPE string.
+
+  FIELD-SYMBOLS: <line> TYPE soli.
+
+  "-------------------------------------------------
+
+  "Pre load dummy csv table
+  DO 5 TIMES.
+    APPEND lv_string TO lt_csv_string.
+  ENDDO.
+
+  CLEAR lv_string. CLEAR lv_csv_string.
+  LOOP AT lt_csv_string INTO lv_string.
+    IF lv_csv_string IS INITIAL.
+      lv_csv_string = lv_string.
+    ELSE.
+      CONCATENATE lv_csv_string lv_string
+        INTO lv_csv_string SEPARATED BY cl_abap_char_utilities=>cr_lf.
+    ENDIF.
+    CLEAR lv_string.
+  ENDLOOP.
+
+  yt_soli_tab[] = cl_bcs_convert=>string_to_soli( iv_string = lv_csv_string ).
+
+  y_attch_subuject = 'attachment_name.csv'.
+
+
+ENDFORM.                    "fill_csv
