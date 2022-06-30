@@ -1406,7 +1406,7 @@ FORM fill_recipient  CHANGING yo_send_request TYPE REF TO cl_bcs.
 
   "-------------------------------------------------
 
-  lv_email     = 'antonio.garofalo@finconsgroup.com'.
+  lv_email     = 'youremail@gmail.com'.
 
   CLEAR lo_recipient.
   lo_recipient = cl_cam_address_bcs=>create_internet_address( lv_email ).
