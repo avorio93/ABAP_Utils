@@ -906,6 +906,10 @@ FORM display_alv_popup  TABLES xt_alv  TYPE STANDARD TABLE
   lr_display = go_alv->get_display_settings( ).
   lr_display->set_striped_pattern( cl_salv_display_settings=>true ).
   lr_display->set_list_header( x_title ).
+  
+  DATA: lr_selections TYPE REF TO cl_salv_selections.
+  lr_selections = go_alv->get_selections( ).
+  lr_selections->set_selection_mode( if_salv_c_selection_mode=>row_column ).
 
   IF go_alv IS BOUND.
 
